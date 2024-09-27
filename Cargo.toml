@@ -1,16 +1,7 @@
-[workspace]
-members = ["binaries/client", "binaries/server", "libraries/core"]
-resolver = "2"
-
-[workspace.package]
+[package]
+name = "voxel-shooter"
 version = "0.1.0"
-description = "Mini project of a voxel based shooter game."
-documentation = ""
 edition = "2021"
-license = "Apache-2.0"
-repository = "https://github.com/Hennzau/voxel-shooter"
 
-[workspace.dependencies]
-core = { path = "libraries/core" }
-tokio = { version = "1.40.0", features = ["full"] }
-eyre = "0.6.12"
+[dependencies]
+bevy = { version = "0.14.2", features = ["dynamic_linking"] }
