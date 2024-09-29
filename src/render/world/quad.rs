@@ -38,8 +38,8 @@ impl Direction {
 
 ///! plane data with 4 vertices
 pub struct Quad {
-    pub vertices: Vec<f32>,
-    pub colors: Vec<f32>,
+    pub vertices: Vec<[f32; 3]>,
+    pub colors: Vec<[f32; 4]>,
     pub indices: Vec<u32>,
     pub direction: Direction,
 }
@@ -56,85 +56,190 @@ impl Quad {
     ) -> Self {
         let color = color.to_srgba();
 
-        // Quad, size 1, pos = center
+        // Quad, size 1, not centered around pos
         let (vertices, colors) = match direction {
             Direction::Left => (
                 vec![
-                    -0.5, -0.5, -0.5, // 0
-                    -0.5, -0.5, 0.5, // 1
-                    -0.5, 0.5, 0.5, // 2
-                    -0.5, 0.5, -0.5, // 3
+                    [pos.x as f32, pos.y as f32, pos.z as f32], // bottom-left
+                    [pos.x as f32, pos.y as f32, pos.z as f32 + 1.0], // bottom-right
+                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-right
+                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32], // top-left
                 ],
                 vec![
-                    color.red * 0.87,
-                    color.green * 0.87,
-                    color.blue * 0.87,
-                    color.alpha,
+                    [
+                        color.red * 0.85,
+                        color.green * 0.85,
+                        color.blue * 0.85,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.85,
+                        color.green * 0.85,
+                        color.blue * 0.85,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.85,
+                        color.green * 0.85,
+                        color.blue * 0.85,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.85,
+                        color.green * 0.85,
+                        color.blue * 0.85,
+                        color.alpha,
+                    ],
                 ],
             ),
             Direction::Right => (
                 vec![
-                    0.5, -0.5, 0.5, // 0
-                    0.5, -0.5, -0.5, // 1
-                    0.5, 0.5, -0.5, // 2
-                    0.5, 0.5, 0.5, // 3
+                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32 + 1.0], // bottom-right
+                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32],       // bottom-left
+                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32], // top-left
+                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-right
                 ],
                 vec![
-                    color.red * 0.9,
-                    color.green * 0.9,
-                    color.blue * 0.9,
-                    color.alpha,
+                    [
+                        color.red * 0.9,
+                        color.green * 0.9,
+                        color.blue * 0.9,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.9,
+                        color.green * 0.9,
+                        color.blue * 0.9,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.9,
+                        color.green * 0.9,
+                        color.blue * 0.9,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.9,
+                        color.green * 0.9,
+                        color.blue * 0.9,
+                        color.alpha,
+                    ],
                 ],
             ),
             Direction::Down => (
                 vec![
-                    -0.5, -0.5, 0.5, // 0
-                    0.5, -0.5, 0.5, // 1
-                    0.5, -0.5, -0.5, // 2
-                    -0.5, -0.5, -0.5, // 3
+                    [pos.x as f32, pos.y as f32, pos.z as f32], // bottom-left
+                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32], // bottom-right
+                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32 + 1.0], // top-right
+                    [pos.x as f32, pos.y as f32, pos.z as f32 + 1.0], // top-left
                 ],
                 vec![
-                    color.red * 0.85,
-                    color.green * 0.85,
-                    color.blue * 0.85,
-                    color.alpha,
+                    [
+                        color.red * 0.7,
+                        color.green * 0.7,
+                        color.blue * 0.7,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.7,
+                        color.green * 0.7,
+                        color.blue * 0.7,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.7,
+                        color.green * 0.7,
+                        color.blue * 0.7,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.7,
+                        color.green * 0.7,
+                        color.blue * 0.7,
+                        color.alpha,
+                    ],
                 ],
             ),
             Direction::Up => (
                 vec![
-                    -0.5, 0.5, -0.5, // 0
-                    0.5, 0.5, -0.5, // 1
-                    0.5, 0.5, 0.5, // 2
-                    -0.5, 0.5, 0.5, // 3
+                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // bottom-left
+                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // bottom-right
+                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32], // top-right
+                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32],       // top-left
                 ],
-                vec![color.red, color.green, color.blue, color.alpha],
+                vec![
+                    [color.red, color.green, color.blue, color.alpha],
+                    [color.red, color.green, color.blue, color.alpha],
+                    [color.red, color.green, color.blue, color.alpha],
+                    [color.red, color.green, color.blue, color.alpha],
+                ],
             ),
             Direction::Back => (
                 vec![
-                    0.5, -0.5, -0.5, // 0
-                    -0.5, -0.5, -0.5, // 1
-                    -0.5, 0.5, -0.5, // 2
-                    0.5, 0.5, -0.5, // 3
+                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32], // bottom-right
+                    [pos.x as f32, pos.y as f32, pos.z as f32],       // bottom-left
+                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32], // top-left
+                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32], // top-right
                 ],
                 vec![
-                    color.red * 0.88,
-                    color.green * 0.88,
-                    color.blue * 0.88,
-                    color.alpha,
+                    [
+                        color.red * 0.6,
+                        color.green * 0.6,
+                        color.blue * 0.6,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.6,
+                        color.green * 0.6,
+                        color.blue * 0.6,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.6,
+                        color.green * 0.6,
+                        color.blue * 0.6,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.6,
+                        color.green * 0.6,
+                        color.blue * 0.6,
+                        color.alpha,
+                    ],
                 ],
             ),
             Direction::Forward => (
                 vec![
-                    -0.5, -0.5, 0.5, // 0
-                    0.5, -0.5, 0.5, // 1
-                    0.5, 0.5, 0.5, // 2
-                    -0.5, 0.5, 0.5, // 3
+                    [pos.x as f32, pos.y as f32, pos.z as f32 + 1.0], // bottom-left
+                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32 + 1.0], // bottom-right
+                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-right
+                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-left
                 ],
                 vec![
-                    color.red * 0.86,
-                    color.green * 0.86,
-                    color.blue * 0.86,
-                    color.alpha,
+                    [
+                        color.red * 0.8,
+                        color.green * 0.8,
+                        color.blue * 0.8,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.8,
+                        color.green * 0.8,
+                        color.blue * 0.8,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.8,
+                        color.green * 0.8,
+                        color.blue * 0.8,
+                        color.alpha,
+                    ],
+                    [
+                        color.red * 0.8,
+                        color.green * 0.8,
+                        color.blue * 0.8,
+                        color.alpha,
+                    ],
                 ],
             ),
         };

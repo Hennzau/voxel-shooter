@@ -59,6 +59,6 @@ fn move_player(
         }
 
         transform.translation +=
-            new_position.try_normalize().unwrap_or(Vec3::ZERO) * 100.0 * time.delta_seconds();
+            new_position.try_normalize().unwrap_or(Vec3::ZERO) * 50.0 * time.delta_seconds();
     }
 }
