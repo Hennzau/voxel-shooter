@@ -2,16 +2,19 @@ use bevy::{
     prelude::*,
     render::{mesh::PrimitiveTopology, render_asset::RenderAssetUsages},
 };
+use mesh::ChunkMaterial;
 use quad::Quad;
 
 use crate::logic::world::ChunkData;
 
+mod mesh;
 mod quad;
 
 pub struct WorldRenderer;
 
 impl Plugin for WorldRenderer {
     fn build(&self, app: &mut App) {
+        app.add_plugins(MaterialPlugin::<ChunkMaterial>::default());
         app.add_systems(Update, generate_mesh);
     }
 }
@@ -19,12 +22,11 @@ impl Plugin for WorldRenderer {
 fn generate_mesh(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<ChunkMaterial>>,
     mut chunks: Query<(Entity, &ChunkData), Without<Handle<Mesh>>>,
 ) {
     for (chunk_id, chunk_data) in &mut chunks {
-        let mut vertices = Vec::<[f32; 3]>::new();
-        let mut colors = Vec::<[f32; 4]>::new();
+        let mut vertices = Vec::<u32>::new();
         let mut indices = Vec::<u32>::new();
 
         for x in 0..16 {
@@ -40,66 +42,65 @@ fn generate_mesh(
                         quad::Direction::Forward,
                         vertices.len(),
                         IVec3::new(x, y, z),
-                        Color::srgb(0.0, 1.0, 0.0),
+                        0,
+                        15,
                     );
 
                     vertices.append(&mut forward.vertices);
-                    colors.append(&mut forward.colors);
                     indices.append(&mut forward.indices);
 
                     let mut back = Quad::from_direction(
                         quad::Direction::Back,
                         vertices.len(),
                         IVec3::new(x, y, z),
-                        Color::srgb(0.0, 1.0, 0.0),
+                        0,
+                        15,
                     );
 
                     vertices.append(&mut back.vertices);
-                    colors.append(&mut back.colors);
                     indices.append(&mut back.indices);
 
                     let mut left = Quad::from_direction(
                         quad::Direction::Left,
                         vertices.len(),
                         IVec3::new(x, y, z),
-                        Color::srgb(0.0, 1.0, 0.0),
+                        0,
+                        15,
                     );
-
                     vertices.append(&mut left.vertices);
-                    colors.append(&mut left.colors);
                     indices.append(&mut left.indices);
 
                     let mut right = Quad::from_direction(
                         quad::Direction::Right,
                         vertices.len(),
                         IVec3::new(x, y, z),
-                        Color::srgb(0.0, 1.0, 0.0),
+                        0,
+                        15,
                     );
 
                     vertices.append(&mut right.vertices);
-                    colors.append(&mut right.colors);
                     indices.append(&mut right.indices);
 
                     let mut top = Quad::from_direction(
                         quad::Direction::Up,
                         vertices.len(),
                         IVec3::new(x, y, z),
-                        Color::srgb(0.0, 1.0, 0.0),
+                        0,
+                        15,
                     );
 
                     vertices.append(&mut top.vertices);
-                    colors.append(&mut top.colors);
                     indices.append(&mut top.indices);
 
                     let mut bottom = Quad::from_direction(
                         quad::Direction::Down,
                         vertices.len(),
                         IVec3::new(x, y, z),
-                        Color::srgb(0.0, 1.0, 0.0),
+                        0,
+                        15,
                     );
 
                     vertices.append(&mut bottom.vertices);
-                    colors.append(&mut bottom.colors);
                     indices.append(&mut bottom.indices);
                 }
             }
@@ -110,14 +111,10 @@ fn generate_mesh(
             RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD,
         );
 
-        mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
-        mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
+        mesh.insert_attribute(mesh::ATTRIBUTE_VOXEL, vertices);
         mesh.insert_indices(bevy::render::mesh::Indices::U32(indices));
 
-        let material = materials.add(StandardMaterial {
-            base_color: Color::srgb(1.0, 1.0, 1.0),
-            ..Default::default()
-        });
+        let material = materials.add(mesh::ChunkMaterial {});
 
         commands.entity(chunk_id).insert(MaterialMeshBundle {
             mesh: meshes.add(mesh),

@@ -22,6 +22,8 @@ fn main() {
             WorldLogic,
             WorldRenderer,
         ))
+        .add_plugins(WorldInspectorPlugin::default())
+        .insert_resource(ClearColor(Color::srgb(0.72, 1.0, 0.98)))
         .add_systems(Update, focus_player)
         .add_systems(Startup, (setup, construct_world))
         .run();
@@ -47,19 +49,22 @@ fn focus_player(
 }
 
 fn construct_world(mut commands: Commands) {
-    commands.spawn(WorldData {
-        chunks: HashMap::new(),
-    });
+    commands
+        .spawn(WorldData::new())
+        .insert(Name::new("World"))
+        .insert(Transform::from_xyz(0.0, 0.0, 0.0))
+        .insert(GlobalTransform::default());
 
     commands.insert_resource(AmbientLight {
         color: WHITE.into(),
-        brightness: 500.0,
+        brightness: 700.0,
     });
 }
 
 /// set up a simple 3D scene
 fn setup(mut commands: Commands) {
     let mut player = commands.spawn((Player, MainPlayer));
+
     player.insert(Camera3dBundle {
         projection: PerspectiveProjection {
             near: 0.1,
@@ -70,4 +75,6 @@ fn setup(mut commands: Commands) {
         .into(),
         ..Default::default()
     });
+
+    player.insert(Name::new("Player"));
 }

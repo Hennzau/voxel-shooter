@@ -19,7 +19,7 @@ impl Direction {
             Direction::Right => 1i32,
             Direction::Down => 2i32,
             Direction::Up => 3i32,
-            Direction::Back => 4i32,
+            Direction::Back => 5i32,
             Direction::Forward => 5i32,
         }
     }
@@ -36,12 +36,10 @@ impl Direction {
     }
 }
 
-///! plane data with 4 vertices
+///! plane data with 5 vertices
 pub struct Quad {
-    pub vertices: Vec<[f32; 3]>,
-    pub colors: Vec<[f32; 4]>,
+    pub vertices: Vec<u32>,
     pub indices: Vec<u32>,
-    pub direction: Direction,
 }
 
 impl Quad {
@@ -52,202 +50,79 @@ impl Quad {
         direction: Direction,
         vertices_offset: usize,
         pos: IVec3,
-        color: Color,
+        block_id: u32,
+        block_health: u32,
     ) -> Self {
-        let color = color.to_srgba();
+        let x = (pos.x as u32).clamp(0, 15);
+        let y = (pos.y as u32).clamp(0, 15);
+        let z = (pos.z as u32).clamp(0, 15);
 
-        // Quad, size 1, not centered around pos
-        let (vertices, colors) = match direction {
-            Direction::Left => (
+        let x1 = (x + 1).clamp(0, 16);
+        let y1 = (y + 1).clamp(0, 16);
+        let z1 = (z + 1).clamp(0, 16);
+
+        let block_id = block_id.clamp(0, 15);
+        let block_health = block_health.clamp(0, 15);
+
+        let vertices = match direction {
+            Direction::Left => {
+                let normal = 0.clamp(0, 6);
                 vec![
-                    [pos.x as f32, pos.y as f32, pos.z as f32], // bottom-left
-                    [pos.x as f32, pos.y as f32, pos.z as f32 + 1.0], // bottom-right
-                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-right
-                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32], // top-left
-                ],
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y1 << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y1 << 5 | x,
+                ]
+            }
+            Direction::Right => {
+                let normal = 1.clamp(0, 6);
                 vec![
-                    [
-                        color.red * 0.85,
-                        color.green * 0.85,
-                        color.blue * 0.85,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.85,
-                        color.green * 0.85,
-                        color.blue * 0.85,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.85,
-                        color.green * 0.85,
-                        color.blue * 0.85,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.85,
-                        color.green * 0.85,
-                        color.blue * 0.85,
-                        color.alpha,
-                    ],
-                ],
-            ),
-            Direction::Right => (
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y << 5 | x1,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y << 5 | x1,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y1 << 5 | x1,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y1 << 5 | x1,
+                ]
+            }
+            Direction::Down => {
+                let normal = 2.clamp(0, 6);
                 vec![
-                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32 + 1.0], // bottom-right
-                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32],       // bottom-left
-                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32], // top-left
-                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-right
-                ],
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y << 5 | x1,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y << 5 | x1,
+                ]
+            }
+            Direction::Up => {
+                let normal = 3.clamp(0, 6);
                 vec![
-                    [
-                        color.red * 0.9,
-                        color.green * 0.9,
-                        color.blue * 0.9,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.9,
-                        color.green * 0.9,
-                        color.blue * 0.9,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.9,
-                        color.green * 0.9,
-                        color.blue * 0.9,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.9,
-                        color.green * 0.9,
-                        color.blue * 0.9,
-                        color.alpha,
-                    ],
-                ],
-            ),
-            Direction::Down => (
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y1 << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y1 << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y1 << 5 | x1,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y1 << 5 | x1,
+                ]
+            }
+            Direction::Back => {
+                let normal = 5.clamp(0, 6);
                 vec![
-                    [pos.x as f32, pos.y as f32, pos.z as f32], // bottom-left
-                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32], // bottom-right
-                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32 + 1.0], // top-right
-                    [pos.x as f32, pos.y as f32, pos.z as f32 + 1.0], // top-left
-                ],
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y1 << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y1 << 5 | x1,
+                    normal << 23 | block_health << 19 | block_id << 15 | z << 10 | y << 5 | x1,
+                ]
+            }
+            Direction::Forward => {
+                let normal = 5.clamp(0, 6);
                 vec![
-                    [
-                        color.red * 0.7,
-                        color.green * 0.7,
-                        color.blue * 0.7,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.7,
-                        color.green * 0.7,
-                        color.blue * 0.7,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.7,
-                        color.green * 0.7,
-                        color.blue * 0.7,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.7,
-                        color.green * 0.7,
-                        color.blue * 0.7,
-                        color.alpha,
-                    ],
-                ],
-            ),
-            Direction::Up => (
-                vec![
-                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // bottom-left
-                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // bottom-right
-                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32], // top-right
-                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32],       // top-left
-                ],
-                vec![
-                    [color.red, color.green, color.blue, color.alpha],
-                    [color.red, color.green, color.blue, color.alpha],
-                    [color.red, color.green, color.blue, color.alpha],
-                    [color.red, color.green, color.blue, color.alpha],
-                ],
-            ),
-            Direction::Back => (
-                vec![
-                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32], // bottom-right
-                    [pos.x as f32, pos.y as f32, pos.z as f32],       // bottom-left
-                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32], // top-left
-                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32], // top-right
-                ],
-                vec![
-                    [
-                        color.red * 0.6,
-                        color.green * 0.6,
-                        color.blue * 0.6,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.6,
-                        color.green * 0.6,
-                        color.blue * 0.6,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.6,
-                        color.green * 0.6,
-                        color.blue * 0.6,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.6,
-                        color.green * 0.6,
-                        color.blue * 0.6,
-                        color.alpha,
-                    ],
-                ],
-            ),
-            Direction::Forward => (
-                vec![
-                    [pos.x as f32, pos.y as f32, pos.z as f32 + 1.0], // bottom-left
-                    [pos.x as f32 + 1.0, pos.y as f32, pos.z as f32 + 1.0], // bottom-right
-                    [pos.x as f32 + 1.0, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-right
-                    [pos.x as f32, pos.y as f32 + 1.0, pos.z as f32 + 1.0], // top-left
-                ],
-                vec![
-                    [
-                        color.red * 0.8,
-                        color.green * 0.8,
-                        color.blue * 0.8,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.8,
-                        color.green * 0.8,
-                        color.blue * 0.8,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.8,
-                        color.green * 0.8,
-                        color.blue * 0.8,
-                        color.alpha,
-                    ],
-                    [
-                        color.red * 0.8,
-                        color.green * 0.8,
-                        color.blue * 0.8,
-                        color.alpha,
-                    ],
-                ],
-            ),
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y1 << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y << 5 | x,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y << 5 | x1,
+                    normal << 23 | block_health << 19 | block_id << 15 | z1 << 10 | y1 << 5 | x1,
+                ]
+            }
         };
 
         Self {
             vertices,
-            colors,
-            direction,
             indices: vec![
                 0 + vertices_offset as u32,
                 1 + vertices_offset as u32,
