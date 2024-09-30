@@ -1,5 +1,9 @@
 use bevy::{color::palettes::css::WHITE, prelude::*, utils::HashMap};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_screen_diagnostics::{
+    ScreenDiagnosticsPlugin, ScreenEntityDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
+};
+
 use logic::{
     player::{Player, PlayerFocus, PlayerManagement},
     utilities::CursorGrabber,
@@ -15,14 +19,18 @@ mod render;
 
 fn main() {
     App::new()
-        .add_plugins((
-            DefaultPlugins,
-            CursorGrabber,
-            PlayerManagement,
-            WorldLogic,
-            WorldRenderer,
-        ))
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                present_mode: bevy::window::PresentMode::AutoNoVsync,
+                ..default()
+            }),
+            ..default()
+        }))
+        .add_plugins((CursorGrabber, PlayerManagement, WorldLogic, WorldRenderer))
         .add_plugins(WorldInspectorPlugin::default())
+        .add_plugins(ScreenDiagnosticsPlugin::default())
+        .add_plugins(ScreenEntityDiagnosticsPlugin)
+        .add_plugins(ScreenFrameDiagnosticsPlugin)
         .insert_resource(ClearColor(Color::srgb(0.72, 1.0, 0.98)))
         .add_systems(Update, focus_player)
         .add_systems(Startup, (setup, construct_world))
