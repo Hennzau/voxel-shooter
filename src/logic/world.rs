@@ -11,8 +11,8 @@ pub struct WorldData {
 impl WorldData {
     pub fn new() -> Self {
         let mut next_chunks = Vec::new();
-        for x in -5..=5 {
-            for z in -5..=5 {
+        for x in 0..=0 {
+            for z in 0..=0 {
                 next_chunks.push(IVec3::new(x, 0, z));
             }
         }
@@ -72,7 +72,7 @@ fn load_chunks(mut commands: Commands, mut worlds: Query<(Entity, &mut WorldData
                 for j in 0..16 {
                     // z
                     let height =
-                        perlin.get_noise((x * 16 + i) as f64, (z * 16 + j) as f64) as i32 + 16;
+                        perlin.get_noise((x * 16 + i) as f64, (z * 16 + j) as f64) as i32 + 18;
 
                     for k in 0..16 {
                         // y

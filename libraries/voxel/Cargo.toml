@@ -1,0 +1,13 @@
+[package]
+name = "voxel"
+version.workspace = true
+edition.workspace = true
+documentation.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+bevy = { workspace = true }
+eyre = { workspace = true }
+perlin2d = { workspace = true }

@@ -1,0 +1,15 @@
+[package]
+name = "client"
+version.workspace = true
+edition.workspace = true
+documentation.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+voxel = { workspace = true }
+
+bevy = { workspace = true }
+bevy-inspector-egui = { workspace = true }
+bevy_screen_diagnostics = { workspace = true }
