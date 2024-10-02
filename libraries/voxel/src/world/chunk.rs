@@ -10,6 +10,7 @@ pub struct Chunk {
 
     // Store the blocks in a flat array
     pub blocks: [Block; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
+    pub healths: [u8; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
 
     // Mask to determine if a block is solid for fast face culling
     pub x_axis: [u16; CHUNK_SIZE * CHUNK_SIZE],
@@ -56,6 +57,7 @@ impl Chunk {
         Self {
             pos,
             blocks: [Block::Air; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
+            healths: [15; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
             x_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
             y_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
             z_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
@@ -70,12 +72,28 @@ impl Chunk {
         Ok(self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE])
     }
 
-    pub fn set_block(&mut self, x: usize, y: usize, z: usize, block: Block) -> eyre::Result<()> {
+    pub fn get_health(&self, x: usize, y: usize, z: usize) -> eyre::Result<u8> {
+        if x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE {
+            return Err(eyre::eyre!("Index out of bounds"));
+        }
+
+        Ok(self.healths[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE])
+    }
+
+    pub fn set_block(
+        &mut self,
+        x: usize,
+        y: usize,
+        z: usize,
+        block: Block,
+        health: u8,
+    ) -> eyre::Result<()> {
         if x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE {
             return Err(eyre::eyre!("Index out of bounds"));
         }
 
         self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = block;
+        self.healths[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = health;
 
         self.x_axis[y + z * CHUNK_SIZE] |= 1 << x;
         self.y_axis[x + z * CHUNK_SIZE] |= 1 << y;
@@ -83,87 +101,4 @@ impl Chunk {
 
         Ok(())
     }
-    /*
-    pub fn get_solid(
-        &self,
-        left: Option<&Self>,
-        right: Option<&Self>,
-        bottom: Option<&Self>,
-        top: Option<&Self>,
-        back: Option<&Self>,
-        front: Option<&Self>,
-    ) -> eyre::Result<ChunkMask> {
-        let mut mask = ChunkMask::new();
-
-        for i in 0..CHUNK_SIZE {
-            for j in 0..CHUNK_SIZE {
-                let x_axis = self.x_axis[i + j * CHUNK_SIZE];
-                let y_axis = self.y_axis[i + j * CHUNK_SIZE];
-                let z_axis = self.z_axis[i + j * CHUNK_SIZE];
-
-                let mask_left = match left {
-                    Some(chunk) => match chunk.get_block(CHUNK_SIZE - 1, i, j)? != Block::Air {
-                        true => !(x_axis << 1 | ((1 << 1) - 1)) & x_axis,
-                        false => !(x_axis << 1) & x_axis,
-                    },
-                    None => !(x_axis << 1) & x_axis,
-                };
-
-                mask.left[i + j * CHUNK_SIZE] = mask_left;
-
-                let mask_right = match right {
-                    Some(chunk) => match chunk.get_block(0, i, j)? != Block::Air {
-                        true => !(x_axis >> 1 | (!0 << 31)) & x_axis,
-                        false => !(x_axis >> 1) & x_axis,
-                    },
-                    None => !(x_axis >> 1) & x_axis,
-                };
-
-                mask.right[i + j * CHUNK_SIZE] = mask_right;
-
-                let mask_bottom = match bottom {
-                    Some(chunk) => match chunk.get_block(i, CHUNK_SIZE - 1, j)? != Block::Air {
-                        true => !(y_axis << 1 | ((1 << 1) - 1)) & y_axis,
-                        false => !(y_axis << 1) & y_axis,
-                    },
-                    None => !(y_axis << 1) & y_axis,
-                };
-
-                mask.bottom[i + j * CHUNK_SIZE] = mask_bottom;
-
-                let mask_top = match top {
-                    Some(chunk) => match chunk.get_block(i, 0, j)? != Block::Air {
-                        true => !(y_axis >> 1 | (!0 << 31)) & y_axis,
-                        false => !(y_axis >> 1) & y_axis,
-                    },
-                    None => !(y_axis >> 1) & y_axis,
-                };
-
-                mask.top[i + j * CHUNK_SIZE] = mask_top;
-
-                let mask_back = match back {
-                    Some(chunk) => match chunk.get_block(i, j, CHUNK_SIZE - 1)? != Block::Air {
-                        true => !(z_axis << 1 | ((1 << 1) - 1)) & z_axis,
-                        false => !(z_axis << 1) & z_axis,
-                    },
-                    None => !(z_axis << 1) & z_axis,
-                };
-
-                mask.back[i + j * CHUNK_SIZE] = mask_back;
-
-                let mask_front = match front {
-                    Some(chunk) => match chunk.get_block(i, j, 0)? != Block::Air {
-                        true => !(z_axis >> 1 | (!0 << 31)) & z_axis,
-                        false => !(z_axis >> 1) & z_axis,
-                    },
-                    None => !(z_axis >> 1) & z_axis,
-                };
-
-                mask.front[i + j * CHUNK_SIZE] = mask_front;
-            }
-        }
-
-        Ok(mask)
-    }
-     */
 }

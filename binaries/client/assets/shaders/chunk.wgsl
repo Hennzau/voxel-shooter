@@ -53,7 +53,7 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     let z = f32(vertex.data >> 8u & x_positive_bits(4u));
     let block_id = u32(vertex.data >> 12u & x_positive_bits(4u));
     let block_health = f32(vertex.data >> 16u & x_positive_bits(4u)) / 15.0;
-    let block_normal = normals[u32(vertex.data >> 29u & x_positive_bits(4u))];
+    let block_normal = normals[u32(vertex.data >> 20u & x_positive_bits(4u))];
 
     out.clip_position = mesh_position_local_to_clip(
         get_world_from_local(vertex.instance_index),

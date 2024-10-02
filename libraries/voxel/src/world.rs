@@ -53,7 +53,7 @@ impl VoxelWorld {
 
 fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld)>) {
     for (entity, mut world) in &mut worlds {
-        if let Some(next) = world.next_chunks.pop() {
+        while let Some(next) = world.next_chunks.pop() {
             let IVec3 { x, y, z } = next;
 
             if world.chunks.contains_key(&IVec3::new(x, y, z)) {
@@ -73,6 +73,11 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                         as i32
                         + 18;
 
+                    let height = match (x, y, z) {
+                        (0, 0, 0) => 12,
+                        _ => height,
+                    };
+
                     for yy in 0..=height {
                         let block = if yy >= height - 2 {
                             Block::Grass
@@ -82,7 +87,7 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                             Block::Stone
                         };
 
-                        if let Err(error) = chunk.set_block(xx, yy as usize, zz, block) {
+                        if let Err(error) = chunk.set_block(xx, yy as usize, zz, block, 15) {
                             eprintln!("{}", error);
                         }
                     }
