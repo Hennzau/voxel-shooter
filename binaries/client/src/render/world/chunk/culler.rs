@@ -27,13 +27,13 @@ fn push_face(
 
 fn line_axis(axis: u16, before: bool, after: bool) -> (u16, u16) {
     let visible_asc = match after {
-        true => !(axis << 1) & axis,
-        false => !(axis << 1) & axis,
+        true => !(axis >> 1 | 0b0100000000000000) & axis,
+        false => !(axis >> 1) & axis,
     };
 
     let visible_desc = match before {
-        true => !(axis >> 1) & axis,
-        false => !(axis >> 1) & axis,
+        true => !(axis << 1 | 1) & axis,
+        false => !(axis << 1) & axis,
     };
 
     (visible_asc, visible_desc)
@@ -71,10 +71,6 @@ impl CulledMesh {
         back: Option<&Chunk>,
         front: Option<&Chunk>,
     ) -> eyre::Result<Self> {
-        println!("Culling chunk at {:?}", chunk.pos);
-        println!("{:?}", back.is_some());
-        println!("{:?}", front.is_some());
-
         let mut vertices = Vec::<u32>::new();
         let mut indices = Vec::<u32>::new();
 
@@ -84,9 +80,33 @@ impl CulledMesh {
                 let y_axis = chunk.y_axis[i + j * CHUNK_SIZE];
                 let z_axis = chunk.z_axis[i + j * CHUNK_SIZE];
 
-                let (visible_left, visible_right) = line_axis(x_axis, false, false);
-                let (visible_bottom, visible_top) = line_axis(y_axis, false, false);
-                let (visible_back, visible_front) = line_axis(z_axis, false, false);
+                let left = left
+                    .map(|chunk| chunk.x_axis[i + j * CHUNK_SIZE] & (1 << (CHUNK_SIZE - 1)) != 0)
+                    .unwrap_or(false);
+
+                let right = right
+                    .map(|chunk| chunk.x_axis[i + j * CHUNK_SIZE] & 1 != 0)
+                    .unwrap_or(false);
+
+                let bottom = bottom
+                    .map(|chunk| chunk.y_axis[i + j * CHUNK_SIZE] & (1 << (CHUNK_SIZE - 1)) != 0)
+                    .unwrap_or(false);
+
+                let top = top
+                    .map(|chunk| chunk.y_axis[i + j * CHUNK_SIZE] & 1 != 0)
+                    .unwrap_or(false);
+
+                let back = back
+                    .map(|chunk| chunk.z_axis[i + j * CHUNK_SIZE] & (1 << (CHUNK_SIZE - 1)) != 0)
+                    .unwrap_or(false);
+
+                let front = front
+                    .map(|chunk| chunk.z_axis[i + j * CHUNK_SIZE] & 1 != 0)
+                    .unwrap_or(false);
+
+                let (visible_right, visible_left) = line_axis(x_axis, left, right);
+                let (visible_top, visible_bottom) = line_axis(y_axis, bottom, top);
+                let (visible_front, visible_back) = line_axis(z_axis, back, front);
 
                 let success: eyre::Result<()> = {
                     for k in 0..CHUNK_SIZE {
@@ -99,7 +119,7 @@ impl CulledMesh {
                             i,
                             j,
                             visible_left,
-                            Direction::XNeg,
+                            Direction::Left,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -110,7 +130,7 @@ impl CulledMesh {
                             i,
                             j,
                             visible_right,
-                            Direction::XPos,
+                            Direction::Right,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -121,7 +141,7 @@ impl CulledMesh {
                             j,
                             k,
                             visible_front,
-                            Direction::ZPos,
+                            Direction::Front,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -132,7 +152,7 @@ impl CulledMesh {
                             j,
                             k,
                             visible_back,
-                            Direction::ZNeg,
+                            Direction::Back,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -143,7 +163,7 @@ impl CulledMesh {
                             k,
                             j,
                             visible_top,
-                            Direction::YPos,
+                            Direction::Up,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -154,7 +174,7 @@ impl CulledMesh {
                             k,
                             j,
                             visible_bottom,
-                            Direction::YNeg,
+                            Direction::Down,
                         )?;
                     }
 
@@ -166,72 +186,6 @@ impl CulledMesh {
                 }
             }
         }
-
-        /*
-        for x in 0..CHUNK_SIZE {
-            for y in 0..CHUNK_SIZE {
-                for z in 0..CHUNK_SIZE {
-                    let block = chunk.get_block(x, y, z)?;
-                    let health = chunk.get_health(x, y, z)? as u32;
-                    if block == Block::Air {
-                        continue;
-                    }
-
-                    let pos = IVec3::new(x as i32, y as i32, z as i32);
-
-                    push_face(
-                        &mut vertices,
-                        &mut indices,
-                        pos,
-                        Direction::Forward,
-                        block,
-                        health,
-                    );
-                    push_face(
-                        &mut vertices,
-                        &mut indices,
-                        pos,
-                        Direction::Back,
-                        block,
-                        health,
-                    );
-                    push_face(
-                        &mut vertices,
-                        &mut indices,
-                        pos,
-                        Direction::Left,
-                        block,
-                        health,
-                    );
-                    push_face(
-                        &mut vertices,
-                        &mut indices,
-                        pos,
-                        Direction::Right,
-                        block,
-                        health,
-                    );
-                    push_face(
-                        &mut vertices,
-                        &mut indices,
-                        pos,
-                        Direction::Up,
-                        block,
-                        health,
-                    );
-                    push_face(
-                        &mut vertices,
-                        &mut indices,
-                        pos,
-                        Direction::Down,
-                        block,
-                        health,
-                    );
-                }
-            }
-        }
-
-         */
 
         Ok(Self { vertices, indices })
     }

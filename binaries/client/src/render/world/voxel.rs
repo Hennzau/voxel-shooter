@@ -11,12 +11,12 @@ use voxel::world::chunk::CHUNK_SIZE;
 
 #[derive(Copy, Clone)]
 pub enum Direction {
-    XNeg,
-    XPos,
-    YNeg,
-    YPos,
-    ZNeg,
-    ZPos,
+    Left,
+    Right,
+    Down,
+    Up,
+    Back,
+    Front,
 }
 
 /// Each vertex is a u32 with the following format:
@@ -79,7 +79,7 @@ impl Quad {
         let block_health = block_health.clamp(0, 15);
 
         let vertices = match direction {
-            Direction::XNeg => {
+            Direction::Left => {
                 let normal = 0.clamp(0, 6);
                 vec![
                     normal << 20 | block_health << 16 | block_id << 12 | z << 8 | y << 4 | x,
@@ -88,7 +88,7 @@ impl Quad {
                     normal << 20 | block_health << 16 | block_id << 12 | z << 8 | y1 << 4 | x,
                 ]
             }
-            Direction::XPos => {
+            Direction::Right => {
                 let normal = 1.clamp(0, 6);
                 vec![
                     normal << 20 | block_health << 16 | block_id << 12 | z1 << 8 | y << 4 | x1,
@@ -97,7 +97,7 @@ impl Quad {
                     normal << 20 | block_health << 16 | block_id << 12 | z1 << 8 | y1 << 4 | x1,
                 ]
             }
-            Direction::YNeg => {
+            Direction::Down => {
                 let normal = 2.clamp(0, 6);
                 vec![
                     normal << 20 | block_health << 16 | block_id << 12 | z1 << 8 | y << 4 | x,
@@ -106,7 +106,7 @@ impl Quad {
                     normal << 20 | block_health << 16 | block_id << 12 | z1 << 8 | y << 4 | x1,
                 ]
             }
-            Direction::YPos => {
+            Direction::Up => {
                 let normal = 3.clamp(0, 6);
                 vec![
                     normal << 20 | block_health << 16 | block_id << 12 | z << 8 | y1 << 4 | x,
@@ -115,7 +115,7 @@ impl Quad {
                     normal << 20 | block_health << 16 | block_id << 12 | z << 8 | y1 << 4 | x1,
                 ]
             }
-            Direction::ZNeg => {
+            Direction::Back => {
                 let normal = 5.clamp(0, 6);
                 vec![
                     normal << 20 | block_health << 16 | block_id << 12 | z << 8 | y << 4 | x,
@@ -124,7 +124,7 @@ impl Quad {
                     normal << 20 | block_health << 16 | block_id << 12 | z << 8 | y << 4 | x1,
                 ]
             }
-            Direction::ZPos => {
+            Direction::Front => {
                 let normal = 5.clamp(0, 6);
                 vec![
                     normal << 20 | block_health << 16 | block_id << 12 | z1 << 8 | y1 << 4 | x,

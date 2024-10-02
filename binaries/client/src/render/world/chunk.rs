@@ -5,7 +5,7 @@ use bevy::{
 
 use culler::CulledMesh;
 use voxel::world::{
-    chunk::{Chunk, ChunkNeighbors, CHUNK_SIZE},
+    chunk::{Chunk, ChunkNeighbors, ChunkUpdated, CHUNK_SIZE},
     VoxelWorld,
 };
 

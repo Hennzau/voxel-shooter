@@ -57,7 +57,13 @@ fn focus_player(
 
 fn construct_world(mut commands: Commands) {
     commands
-        .spawn(VoxelWorld::new().with_generation(vec![IVec3::new(0, 0, 0), IVec3::new(0, 0, 1)]))
+        .spawn(VoxelWorld::new().with_generation(vec![
+            IVec3::new(0, 0, 0),
+            IVec3::new(0, 0, 1),
+            IVec3::new(0, 0, -1),
+            IVec3::new(1, 0, 0),
+            IVec3::new(-1, 0, 0),
+        ]))
         .insert(Name::new("World"))
         .insert(Transform::from_xyz(0.0, 0.0, 0.0))
         .insert(GlobalTransform::default());

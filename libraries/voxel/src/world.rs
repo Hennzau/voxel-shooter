@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 use blocks::Block;
-use chunk::{Chunk, ChunkNeighbors, CHUNK_SIZE};
+use chunk::{Chunk, ChunkNeighbors, ChunkUpdated, CHUNK_SIZE};
 
 pub mod blocks;
 pub mod chunk;
@@ -53,7 +53,7 @@ impl VoxelWorld {
 
 fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld)>) {
     for (entity, mut world) in &mut worlds {
-        while let Some(next) = world.next_chunks.pop() {
+        if let Some(next) = world.next_chunks.pop() {
             let IVec3 { x, y, z } = next;
 
             if world.chunks.contains_key(&IVec3::new(x, y, z)) {
@@ -73,11 +73,6 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                         as i32
                         + 18;
 
-                    let height = match (x, y, z) {
-                        (0, 0, 0) => 12,
-                        _ => height,
-                    };
-
                     for yy in 0..=height {
                         let block = if yy >= height - 2 {
                             Block::Grass
@@ -92,6 +87,39 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                         }
                     }
                 }
+            }
+
+            let ChunkNeighbors {
+                left,
+                right,
+                front,
+                back,
+                top,
+                bottom,
+            } = world.neighbours(&chunk);
+
+            if let Some(left) = left {
+                commands.entity(left).insert(ChunkUpdated);
+            }
+
+            if let Some(right) = right {
+                commands.entity(right).insert(ChunkUpdated);
+            }
+
+            if let Some(front) = front {
+                commands.entity(front).insert(ChunkUpdated);
+            }
+
+            if let Some(back) = back {
+                commands.entity(back).insert(ChunkUpdated);
+            }
+
+            if let Some(top) = top {
+                commands.entity(top).insert(ChunkUpdated);
+            }
+
+            if let Some(bottom) = bottom {
+                commands.entity(bottom).insert(ChunkUpdated);
             }
 
             commands.entity(entity).with_children(|parent| {
