@@ -1,5 +1,5 @@
 [package]
-name = "client"
+name = "logic"
 version.workspace = true
 edition.workspace = true
 documentation.workspace = true
@@ -8,10 +8,6 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-voxel = { workspace = true }
-logic = { workspace = true }
-
 bevy = { workspace = true }
-bevy-inspector-egui = { workspace = true }
-bevy_screen_diagnostics = { workspace = true }
 eyre = { workspace = true }
+perlin2d = { workspace = true }

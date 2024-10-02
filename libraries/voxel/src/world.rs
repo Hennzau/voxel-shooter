@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 use blocks::Block;
-use chunk::CHUNK_SIZE;
+use chunk::{Chunk, ChunkNeighbors, CHUNK_SIZE};
 
 pub mod blocks;
 pub mod chunk;
@@ -36,6 +36,19 @@ impl VoxelWorld {
     pub fn generate(&mut self, chunks: Vec<IVec3>) {
         self.next_chunks.extend(chunks);
     }
+
+    pub fn neighbours(&self, chunk: &Chunk) -> ChunkNeighbors {
+        let IVec3 { x, y, z } = chunk.pos;
+
+        ChunkNeighbors {
+            left: self.chunks.get(&IVec3::new(x - 1, y, z)).cloned(),
+            right: self.chunks.get(&IVec3::new(x + 1, y, z)).cloned(),
+            front: self.chunks.get(&IVec3::new(x, y, z - 1)).cloned(),
+            back: self.chunks.get(&IVec3::new(x, y, z + 1)).cloned(),
+            top: self.chunks.get(&IVec3::new(x, y + 1, z)).cloned(),
+            bottom: self.chunks.get(&IVec3::new(x, y - 1, z)).cloned(),
+        }
+    }
 }
 
 fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld)>) {
@@ -51,7 +64,7 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
 
             let perlin = PerlinNoise2D::new(6, 10.0, 0.5, 1.0, 2.0, (100.0, 100.0), 0.5, 101);
 
-            let mut chunk = chunk::Chunk::new();
+            let mut chunk = chunk::Chunk::new(IVec3::new(x, y, z));
 
             for xx in 0..CHUNK_SIZE {
                 for zz in 0..CHUNK_SIZE {
@@ -61,9 +74,9 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                         + 18;
 
                     for yy in 0..=height {
-                        let block = if yy == height {
+                        let block = if yy >= height - 2 {
                             Block::Grass
-                        } else if yy > height - 3 {
+                        } else if yy > height - 5 {
                             Block::Dirt
                         } else {
                             Block::Stone

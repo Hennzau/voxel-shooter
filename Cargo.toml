@@ -1,5 +1,10 @@
 [workspace]
-members = ["binaries/client", "binaries/server", "libraries/voxel"]
+members = [
+    "binaries/client",
+    "binaries/server",
+    "libraries/logic",
+    "libraries/voxel",
+]
 resolver = "2"
 
 [workspace.package]
@@ -12,6 +17,7 @@ repository = "https://github.com/Hennzau/voxel-shooter"
 
 [workspace.dependencies]
 voxel = { path = "libraries/voxel" }
+logic = { path = "libraries/logic" }
 
 bevy = { version = "0.14.2", features = ["dynamic_linking"] }
 bevy-inspector-egui = "0.26.0"

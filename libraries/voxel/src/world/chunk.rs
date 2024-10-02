@@ -6,6 +6,8 @@ pub const CHUNK_SIZE: usize = 15;
 
 #[derive(Debug, Component)]
 pub struct Chunk {
+    pub pos: IVec3,
+
     // Store the blocks in a flat array
     pub blocks: [Block; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
 
@@ -37,12 +39,22 @@ impl ChunkMask {
     }
 }
 
+pub struct ChunkNeighbors {
+    pub left: Option<Entity>,
+    pub right: Option<Entity>,
+    pub bottom: Option<Entity>,
+    pub top: Option<Entity>,
+    pub back: Option<Entity>,
+    pub front: Option<Entity>,
+}
+
 #[derive(Debug, Component)]
 pub struct ChunkUpdated; // "Event" to notify that the chunk has been updated
 
 impl Chunk {
-    pub fn new() -> Self {
+    pub fn new(pos: IVec3) -> Self {
         Self {
+            pos,
             blocks: [Block::Air; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
             x_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
             y_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
@@ -71,7 +83,7 @@ impl Chunk {
 
         Ok(())
     }
-
+    /*
     pub fn get_solid(
         &self,
         left: Option<&Self>,
@@ -153,4 +165,5 @@ impl Chunk {
 
         Ok(mask)
     }
+     */
 }
