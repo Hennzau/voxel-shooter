@@ -43,8 +43,8 @@ impl VoxelWorld {
         ChunkNeighbors {
             left: self.chunks.get(&IVec3::new(x - 1, y, z)).cloned(),
             right: self.chunks.get(&IVec3::new(x + 1, y, z)).cloned(),
-            front: self.chunks.get(&IVec3::new(x, y, z - 1)).cloned(),
-            back: self.chunks.get(&IVec3::new(x, y, z + 1)).cloned(),
+            front: self.chunks.get(&IVec3::new(x, y, z + 1)).cloned(),
+            back: self.chunks.get(&IVec3::new(x, y, z - 1)).cloned(),
             top: self.chunks.get(&IVec3::new(x, y + 1, z)).cloned(),
             bottom: self.chunks.get(&IVec3::new(x, y - 1, z)).cloned(),
         }

@@ -99,7 +99,7 @@ impl CulledMesh {
                             i,
                             j,
                             visible_left,
-                            Direction::Left,
+                            Direction::XNeg,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -110,7 +110,7 @@ impl CulledMesh {
                             i,
                             j,
                             visible_right,
-                            Direction::Right,
+                            Direction::XPos,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -121,7 +121,7 @@ impl CulledMesh {
                             j,
                             k,
                             visible_front,
-                            Direction::Forward,
+                            Direction::ZPos,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -132,7 +132,7 @@ impl CulledMesh {
                             j,
                             k,
                             visible_back,
-                            Direction::Back,
+                            Direction::ZNeg,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -143,7 +143,7 @@ impl CulledMesh {
                             k,
                             j,
                             visible_top,
-                            Direction::Up,
+                            Direction::YPos,
                         )?;
                         push_face_axis(
                             &mut vertices,
@@ -154,7 +154,7 @@ impl CulledMesh {
                             k,
                             j,
                             visible_bottom,
-                            Direction::Down,
+                            Direction::YNeg,
                         )?;
                     }
 
