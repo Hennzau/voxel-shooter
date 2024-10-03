@@ -3,13 +3,12 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_screen_diagnostics::{
     ScreenDiagnosticsPlugin, ScreenEntityDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
 };
-use logic::{
-    cursor::CursorGrabber,
-    player::{Player, PlayerFocus, PlayerManagement},
-};
+use cursor::CursorGrabber;
+use logic::player::{Player, PlayerFocus, PlayerManagement};
 use render::world::VoxelWorldRenderer;
-use voxel::world::{VoxelWorld, VoxelWorldPlugin};
+use voxel::world::{chunk::CHUNK_SIZE, VoxelWorld, VoxelWorldPlugin};
 
+pub mod cursor;
 pub mod render;
 
 #[derive(Debug, Component)]
@@ -31,7 +30,7 @@ fn main() {
         .add_plugins(ScreenEntityDiagnosticsPlugin)
         .add_plugins(ScreenFrameDiagnosticsPlugin)
         .insert_resource(ClearColor(Color::srgb(0.72, 1.0, 0.98)))
-        .add_systems(Update, focus_player)
+        .add_systems(Update, (focus_player, add_chunk_to_world))
         .add_systems(Startup, (setup, construct_world))
         .run();
 }
@@ -55,6 +54,44 @@ fn focus_player(
     }
 }
 
+fn add_chunk_to_world(
+    mut world: Query<&mut VoxelWorld>,
+    player_transform: Query<&Transform, With<PlayerFocus>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+) {
+    if keyboard_input.just_pressed(KeyCode::Enter) {
+        for pos in &player_transform {
+            for mut world in &mut world {
+                let pos = {
+                    let x = pos.translation.x as i32;
+                    let y = pos.translation.y as i32;
+                    let z = pos.translation.z as i32;
+
+                    let x = if x < 0 {
+                        x / CHUNK_SIZE as i32 - 1
+                    } else {
+                        x / CHUNK_SIZE as i32
+                    };
+                    let y = if y < 0 {
+                        y / CHUNK_SIZE as i32 - 1
+                    } else {
+                        y / CHUNK_SIZE as i32
+                    };
+                    let z = if z < 0 {
+                        z / CHUNK_SIZE as i32 - 1
+                    } else {
+                        z / CHUNK_SIZE as i32
+                    };
+
+                    IVec3::new(x, y, z)
+                };
+
+                world.generate(vec![pos]);
+            }
+        }
+    }
+}
+
 fn construct_world(mut commands: Commands) {
     commands
         .spawn(VoxelWorld::new().with_generation(vec![
@@ -66,7 +103,8 @@ fn construct_world(mut commands: Commands) {
         ]))
         .insert(Name::new("World"))
         .insert(Transform::from_xyz(0.0, 0.0, 0.0))
-        .insert(GlobalTransform::default());
+        .insert(GlobalTransform::default())
+        .insert(InheritedVisibility::VISIBLE);
 
     commands.insert_resource(AmbientLight {
         color: WHITE.into(),

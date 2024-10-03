@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 use blocks::Block;
-use chunk::{Chunk, ChunkNeighbors, ChunkUpdated, CHUNK_SIZE};
+use chunk::{ChunkNeighbors, ChunkUpdated, CHUNK_SIZE};
 
 pub mod blocks;
 pub mod chunk;
@@ -37,8 +37,8 @@ impl VoxelWorld {
         self.next_chunks.extend(chunks);
     }
 
-    pub fn neighbours(&self, chunk: &Chunk) -> ChunkNeighbors {
-        let IVec3 { x, y, z } = chunk.pos;
+    pub fn neighbours(&self, pos: IVec3) -> ChunkNeighbors {
+        let IVec3 { x, y, z } = pos;
 
         ChunkNeighbors {
             left: self.chunks.get(&IVec3::new(x - 1, y, z)).cloned(),
@@ -73,10 +73,14 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                         as i32
                         + 18;
 
-                    for yy in 0..=height {
-                        let block = if yy >= height - 2 {
+                    for yy in 0..CHUNK_SIZE {
+                        if yy as i32 >= height {
+                            continue;
+                        }
+
+                        let block = if yy as i32 >= height - 2 {
                             Block::Grass
-                        } else if yy > height - 5 {
+                        } else if yy as i32 > height - 5 {
                             Block::Dirt
                         } else {
                             Block::Stone
@@ -89,6 +93,15 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                 }
             }
 
+            commands.entity(entity).with_children(|parent| {
+                let id = parent
+                    .spawn(chunk)
+                    .insert(Name::new(format!("Chunk ({}, {}, {})", x, y, z)))
+                    .id();
+
+                world.chunks.insert(IVec3::new(x, y, z), id);
+            });
+
             let ChunkNeighbors {
                 left,
                 right,
@@ -96,7 +109,7 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                 back,
                 top,
                 bottom,
-            } = world.neighbours(&chunk);
+            } = world.neighbours(IVec3::new(x, y, z));
 
             if let Some(left) = left {
                 commands.entity(left).insert(ChunkUpdated);
@@ -121,15 +134,6 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
             if let Some(bottom) = bottom {
                 commands.entity(bottom).insert(ChunkUpdated);
             }
-
-            commands.entity(entity).with_children(|parent| {
-                let id = parent
-                    .spawn(chunk)
-                    .insert(Name::new(format!("Chunk ({}, {}, {})", x, y, z)))
-                    .id();
-
-                world.chunks.insert(IVec3::new(x, y, z), id);
-            });
         }
     }
 }

@@ -1,3 +1,4 @@
+
 use bevy::{
     prelude::*,
     render::{mesh::PrimitiveTopology, render_asset::RenderAssetUsages},
@@ -13,12 +14,9 @@ use super::voxel::{ChunkMaterial, ATTRIBUTE_VOXEL};
 
 pub mod culler;
 
-fn get_chunk<'a>(
-    chunks: &'a Query<(&Parent, Entity, &Chunk), Without<Handle<Mesh>>>,
-    entity: Option<Entity>,
-) -> Option<&'a Chunk> {
+fn get_chunk<'a>(all_chunks: &'a Query<&Chunk>, entity: Option<Entity>) -> Option<&'a Chunk> {
     match entity {
-        Some(entity) => chunks.get(entity).map(|(_, _, c)| c).ok(),
+        Some(entity) => all_chunks.get(entity).ok(),
         None => None,
     }
 }
@@ -28,6 +26,7 @@ pub fn generate_chunk_mesh(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
     chunks: Query<(&Parent, Entity, &Chunk), Without<Handle<Mesh>>>,
+    all_chunks: Query<&Chunk>,
     world: Query<&VoxelWorld>,
 ) -> eyre::Result<()> {
     for (parent, chunk_id, chunk) in &chunks {
@@ -39,15 +38,15 @@ pub fn generate_chunk_mesh(
                 bottom,
                 front,
                 back,
-            } = world.neighbours(chunk);
+            } = world.neighbours(chunk.pos);
 
             let (left, right, top, bottom, front, back) = (
-                get_chunk(&chunks, left),
-                get_chunk(&chunks, right),
-                get_chunk(&chunks, top),
-                get_chunk(&chunks, bottom),
-                get_chunk(&chunks, front),
-                get_chunk(&chunks, back),
+                get_chunk(&all_chunks, left),
+                get_chunk(&all_chunks, right),
+                get_chunk(&all_chunks, top),
+                get_chunk(&all_chunks, bottom),
+                get_chunk(&all_chunks, front),
+                get_chunk(&all_chunks, back),
             );
 
             let CulledMesh { vertices, indices } =
@@ -73,6 +72,51 @@ pub fn generate_chunk_mesh(
                 ),
                 ..default()
             });
+        }
+    }
+
+    Ok(())
+}
+
+pub fn update_chunk_mesh(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    chunks: Query<(&Parent, Entity, &Handle<Mesh>, &Chunk), With<ChunkUpdated>>,
+    all_chunks: Query<&Chunk>,
+    world: Query<&VoxelWorld>,
+) -> eyre::Result<()> {
+    for (parent, chunk_id, mesh, chunk) in &chunks {
+        if let Ok(world) = world.get(parent.get()) {
+            let ChunkNeighbors {
+                left,
+                right,
+                top,
+                bottom,
+                front,
+                back,
+            } = world.neighbours(chunk.pos);
+
+            let (left, right, top, bottom, front, back) = (
+                get_chunk(&all_chunks, left),
+                get_chunk(&all_chunks, right),
+                get_chunk(&all_chunks, top),
+                get_chunk(&all_chunks, bottom),
+                get_chunk(&all_chunks, front),
+                get_chunk(&all_chunks, back),
+            );
+
+            let CulledMesh { vertices, indices } =
+                CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
+
+            if let Some(mesh) = meshes.get_mut(mesh.id()) {
+                mesh.remove_attribute(ATTRIBUTE_VOXEL);
+                mesh.remove_indices();
+
+                mesh.insert_attribute(ATTRIBUTE_VOXEL, vertices);
+                mesh.insert_indices(bevy::render::mesh::Indices::U32(indices));
+            }
+
+            commands.entity(chunk_id).remove::<ChunkUpdated>();
         }
     }
 

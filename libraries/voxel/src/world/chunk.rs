@@ -66,7 +66,7 @@ impl Chunk {
 
     pub fn get_block(&self, x: usize, y: usize, z: usize) -> eyre::Result<Block> {
         if x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE {
-            return Err(eyre::eyre!("Index out of bounds"));
+            return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));
         }
 
         Ok(self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE])
@@ -74,7 +74,7 @@ impl Chunk {
 
     pub fn get_health(&self, x: usize, y: usize, z: usize) -> eyre::Result<u8> {
         if x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE {
-            return Err(eyre::eyre!("Index out of bounds"));
+            return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));
         }
 
         Ok(self.healths[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE])
@@ -89,7 +89,7 @@ impl Chunk {
         health: u8,
     ) -> eyre::Result<()> {
         if x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE {
-            return Err(eyre::eyre!("Index out of bounds"));
+            return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));
         }
 
         self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = block;
