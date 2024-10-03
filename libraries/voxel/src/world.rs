@@ -71,7 +71,8 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                     let height = perlin
                         .get_noise((x * 16 + xx as i32) as f64, (z * 16 + zz as i32) as f64)
                         as i32
-                        + 18;
+                        + 18
+                        - y * CHUNK_SIZE as i32;
 
                     for yy in 0..CHUNK_SIZE {
                         if yy as i32 >= height {
