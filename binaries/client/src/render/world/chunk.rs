@@ -52,12 +52,6 @@ pub fn generate_chunk_mesh(
             let CulledMesh { vertices, indices } =
                 CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
 
-            // let Quad { vertices, indices } = Quad::from_direction(
-            //     crate::render::world::voxel::Direction::Down,
-            //     0,
-            //     IVec3::new(0, 0, 0),
-            // );
-
             let mut mesh = Mesh::new(
                 PrimitiveTopology::TriangleList,
                 RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD,
@@ -83,15 +77,26 @@ pub fn generate_chunk_mesh(
 
     Ok(())
 }
-/*
+
 pub fn update_chunk_mesh(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    chunks: Query<(&Parent, Entity, &Handle<Mesh>, &Chunk), With<ChunkUpdated>>,
+    mut materials: ResMut<Assets<ChunkMaterial>>,
+    mut images: ResMut<Assets<Image>>,
+    chunks: Query<
+        (
+            &Parent,
+            Entity,
+            &Handle<Mesh>,
+            &Handle<ChunkMaterial>,
+            &Chunk,
+        ),
+        With<ChunkUpdated>,
+    >,
     all_chunks: Query<&Chunk>,
     world: Query<&VoxelWorld>,
 ) -> eyre::Result<()> {
-    for (parent, chunk_id, mesh, chunk) in &chunks {
+    for (parent, chunk_id, mesh, material, chunk) in &chunks {
         if let Ok(world) = world.get(parent.get()) {
             let ChunkNeighbors {
                 left,
@@ -122,10 +127,13 @@ pub fn update_chunk_mesh(
                 mesh.insert_indices(bevy::render::mesh::Indices::U32(indices));
             }
 
+            if let Some(material) = materials.get_mut(material.id()) {
+                material.update(chunk, &mut images);
+            }
+
             commands.entity(chunk_id).remove::<ChunkUpdated>();
         }
     }
 
     Ok(())
 }
- */

@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "binaries/client",
-    "binaries/server", "binaries/texture-test",
+    "binaries/server",
     "libraries/logic",
     "libraries/voxel",
 ]

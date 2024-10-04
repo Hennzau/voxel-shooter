@@ -7,21 +7,12 @@ struct Vertex {
 
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
-    @location(0) color: vec3<f32>,
-    @location(1) health: f32,
-    @location(2) normal: vec3<f32>,
+    @location(0) uvw: vec3<f32>,
+    @location(1) normal: vec3<f32>,
 };
 
-var<private> normals: array<vec3<f32>,6> = array<vec3<f32>,6> (
-	vec3<f32>(-1.0, 0.0, 0.0), // Left
-	vec3<f32>(1.0, 0.0, 0.0), // Right
-	vec3<f32>(0.0, -1.0, 0.0), // Down
-	vec3<f32>(0.0, 1.0, 0.0), // Up
-	vec3<f32>(0.0, 0.0, -1.0), // Forward
-	vec3<f32>(0.0, 0.0, 1.0) // Back
-);
-
-var<private> colors: array<vec3<f32>,16> = array<vec3<f32>,16>(
+var<private> colors: array<vec3<f32>,17> = array<vec3<f32>,17>(
+    vec3<f32>(0.00, 0.0, 0.00),   // Black, useless in theory
     vec3<f32>(0.07, 0.5, 0.07),   // Green (beau vert)
     vec3<f32>(0.0, 0.75, 1.0),  // Sky blue
     vec3<f32>(1.0, 0.5, 0.0),   // Orange
@@ -40,42 +31,59 @@ var<private> colors: array<vec3<f32>,16> = array<vec3<f32>,16>(
     vec3<f32>(1.0, 0.8, 0.6)    // Peach
 );
 
-fn x_positive_bits(bits: u32) -> u32{
+fn x_positive_bits(bits: u32) -> u32 {
     return (1u << bits) - 1u;
+}
+
+fn interpolate(x: f32) -> f32 {
+    return 2 * x - 1;
 }
 
 @vertex
 fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
 
-    let x = f32(vertex.data & x_positive_bits(4u));
-    let y = f32(vertex.data >> 4u & x_positive_bits(4u));
-    let z = f32(vertex.data >> 8u & x_positive_bits(4u));
-    let block_id = u32(vertex.data >> 12u & x_positive_bits(4u));
-    let block_health = f32(vertex.data >> 16u & x_positive_bits(4u)) / 15.0;
-    let block_normal = normals[u32(vertex.data >> 20u & x_positive_bits(4u))];
+    let x = f32(vertex.data & x_positive_bits(5u));
+    let y = f32(vertex.data >> 5u & x_positive_bits(5u));
+    let z = f32(vertex.data >> 10u & x_positive_bits(5u));
+
+    let u_o = interpolate(f32(vertex.data >> 15u & x_positive_bits(1u)));
+    let v_o = interpolate(f32(vertex.data >> 16u & x_positive_bits(1u)));
+    let w_o = interpolate(f32(vertex.data >> 17u & x_positive_bits(1u)));
+
+    let n_x = f32(vertex.data >> 18u & x_positive_bits(2u)) - 1.0;
+    let n_y = f32(vertex.data >> 20u & x_positive_bits(2u)) - 1.0;
+    let n_z = f32(vertex.data >> 22u & x_positive_bits(2u)) - 1.0;
 
     out.clip_position = mesh_position_local_to_clip(
         get_world_from_local(vertex.instance_index),
         vec4<f32>(x, y, z, 1.0),
     );
 
-    out.color = colors[block_id];
-    out.health = block_health;
-    out.normal = block_normal;
+    out.uvw.x = x + u_o * 0.25;
+    out.uvw.y = y + v_o * 0.25;
+    out.uvw.z = z + w_o * 0.25;
+
+    out.uvw = out.uvw / 15.0;
+
+    out.normal = vec3<f32>(n_x, n_y, n_z);
 
     return out;
 }
 
+@group(2) @binding(0) var chunk: texture_3d<f32>;
+@group(2) @binding(1) var chunk_sampler: sampler;
+
 struct FragmentInput {
-    @location(0) color: vec3<f32>,
-    @location(1) health: f32,
-    @location(2) normal: vec3<f32>,
+    @location(0) uvw: vec3<f32>,
+    @location(1) normal: vec3<f32>,
 };
 
 @fragment
 fn fragment(input: FragmentInput) -> @location(0) vec4<f32> {
-    let color = input.color * input.health;
+    let id = u32(textureSample(chunk, chunk_sampler, input.uvw).x * 255.0);
+
+    let color = colors[id % 16u];
 
     let modifier = dot(abs(input.normal), vec3<f32>(0.15, 0.18, 0.12));
 

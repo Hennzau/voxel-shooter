@@ -1,14 +1,4 @@
-use bevy::{
-    color::palettes::css::WHITE,
-    prelude::*,
-    render::{
-        settings::{RenderCreation, WgpuFeatures, WgpuSettings},
-        texture::{
-            ImageAddressMode, ImageCompareFunction, ImageSamplerBorderColor, ImageSamplerDescriptor,
-        },
-        RenderPlugin,
-    },
-};
+use bevy::{color::palettes::css::WHITE, prelude::*};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_screen_diagnostics::{
     ScreenDiagnosticsPlugin, ScreenEntityDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
@@ -107,14 +97,17 @@ fn add_chunk_to_world(
 }
 
 fn construct_world(mut commands: Commands) {
+    let mut chunks = Vec::new();
+    for x in -5..5 {
+        for y in 0..2 {
+            for z in -5..5 {
+                chunks.push(IVec3::new(x, y, z));
+            }
+        }
+    }
+
     commands
-        .spawn(VoxelWorld::new().with_generation(vec![
-            IVec3::new(0, 0, 0),
-            IVec3::new(0, 0, 1),
-            IVec3::new(0, 0, -1),
-            IVec3::new(1, 0, 0),
-            IVec3::new(-1, 0, 0),
-        ]))
+        .spawn(VoxelWorld::new().with_generation(chunks))
         .insert(Name::new("World"))
         .insert(Transform::from_xyz(0.0, 0.0, 0.0))
         .insert(GlobalTransform::default())
@@ -130,7 +123,7 @@ fn construct_world(mut commands: Commands) {
 fn setup(mut commands: Commands) {
     let mut player = commands.spawn((Player, MainPlayer));
 
-    let mut transform = Transform::from_xyz(24.003, 8.216, 3.763);
+    let mut transform = Transform::from_xyz(63.425, 51.156, -68.056);
     transform.rotate_x(-0.5);
     transform.rotate_y(2.57);
 

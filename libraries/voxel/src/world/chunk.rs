@@ -9,7 +9,7 @@ pub struct Chunk {
     pub pos: IVec3,
 
     // Store the blocks in a flat array
-    pub blocks: [Block; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
+    pub blocks: [u8; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
     pub healths: [u8; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
 
     // Mask to determine if a block is solid for fast face culling
@@ -56,7 +56,7 @@ impl Chunk {
     pub fn new(pos: IVec3) -> Self {
         Self {
             pos,
-            blocks: [Block::Air; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
+            blocks: [Block::Air.as_u8(); CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
             healths: [15; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
             x_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
             y_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
@@ -65,10 +65,7 @@ impl Chunk {
     }
 
     pub fn blocks_as_u8(&self) -> Vec<u8> {
-        self.blocks
-            .iter()
-            .map(|block| block.as_u8())
-            .collect::<Vec<u8>>()
+        self.blocks.into()
     }
 
     pub fn get_block(&self, x: usize, y: usize, z: usize) -> eyre::Result<Block> {
@@ -76,7 +73,9 @@ impl Chunk {
             return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));
         }
 
-        Ok(self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE])
+        Ok(Block::from_u8(
+            self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE],
+        ))
     }
 
     pub fn get_health(&self, x: usize, y: usize, z: usize) -> eyre::Result<u8> {
@@ -99,7 +98,7 @@ impl Chunk {
             return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));
         }
 
-        self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = block;
+        self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = block.as_u8();
         self.healths[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = health;
 
         self.x_axis[y + z * CHUNK_SIZE] |= 1 << x;

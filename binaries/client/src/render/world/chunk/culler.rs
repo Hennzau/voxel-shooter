@@ -1,8 +1,5 @@
 use bevy::math::IVec3;
-use voxel::world::{
-    blocks::Block,
-    chunk::{Chunk, CHUNK_SIZE},
-};
+use voxel::world::chunk::{Chunk, CHUNK_SIZE};
 
 use crate::render::world::voxel::{Direction, Quad};
 
@@ -16,10 +13,9 @@ fn push_face(
     indices: &mut Vec<u32>,
     pos: IVec3,
     direction: Direction,
-    block: Block,
     health: u32,
 ) {
-    let mut quad = Quad::from_direction(direction, vertices.len(), pos);
+    let mut quad = Quad::from_direction(direction, vertices.len(), pos, health);
 
     vertices.append(&mut quad.vertices);
     indices.append(&mut quad.indices);
@@ -52,10 +48,9 @@ fn push_face_axis(
 ) -> eyre::Result<()> {
     if visible & (1 << count) != 0 {
         let pos = IVec3::new(i as i32, j as i32, k as i32);
-        let block = chunk.get_block(i, j, k)?;
         let health = chunk.get_health(i, j, k)? as u32;
 
-        push_face(vertices, indices, pos, direction, block, health);
+        push_face(vertices, indices, pos, direction, health);
     }
 
     Ok(())
