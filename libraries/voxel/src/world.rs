@@ -90,7 +90,11 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
                                 Block::Stone
                             };
 
-                            if let Err(error) = chunk.set_block(xx, yy as usize, zz, block, 15) {
+                            let random_health = (rand::random::<u8>() % 4) + 12;
+
+                            if let Err(error) =
+                                chunk.set_block(xx, yy as usize, zz, block, random_health)
+                            {
                                 eprintln!("{}", error);
                             }
                         }

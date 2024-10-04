@@ -11,3 +11,4 @@ repository.workspace = true
 bevy = { workspace = true }
 eyre = { workspace = true }
 perlin2d = { workspace = true }
+rand = { workspace = true }

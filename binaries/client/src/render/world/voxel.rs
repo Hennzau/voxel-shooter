@@ -82,7 +82,7 @@ impl Material for ChunkMaterial {
         let vertex_layout = layout
             .0
             .get_layout(&[ATTRIBUTE_VOXEL.at_shader_location(0)])?;
-        descriptor.primitive.polygon_mode = PolygonMode::Line;
+        descriptor.primitive.polygon_mode = PolygonMode::Fill;
         descriptor.vertex.buffers = vec![vertex_layout];
         Ok(())
     }
@@ -284,7 +284,8 @@ impl Quad {
             }
             Direction::Back => {
                 vec![
-                    0 << 22
+                    health << 24
+                        | 0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -293,7 +294,8 @@ impl Quad {
                         | z << 10
                         | y << 5
                         | x,
-                    0 << 22
+                    health << 24
+                        | 0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -302,7 +304,8 @@ impl Quad {
                         | z << 10
                         | y1 << 5
                         | x,
-                    0 << 22
+                    health << 24
+                        | 0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -311,7 +314,8 @@ impl Quad {
                         | z << 10
                         | y1 << 5
                         | x1,
-                    0 << 22
+                    health << 24
+                        | 0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -324,7 +328,8 @@ impl Quad {
             }
             Direction::Front => {
                 vec![
-                    2 << 22
+                    health << 24
+                        | 2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17
@@ -333,7 +338,8 @@ impl Quad {
                         | z1 << 10
                         | y1 << 5
                         | x,
-                    2 << 22
+                    health << 24
+                        | 2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17
@@ -342,7 +348,8 @@ impl Quad {
                         | z1 << 10
                         | y << 5
                         | x,
-                    2 << 22
+                    health << 24
+                        | 2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17
@@ -351,7 +358,8 @@ impl Quad {
                         | z1 << 10
                         | y << 5
                         | x1,
-                    2 << 22
+                    health << 24
+                        | 2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17
