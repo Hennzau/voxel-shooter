@@ -1,4 +1,3 @@
-
 use bevy::{
     prelude::*,
     render::{mesh::PrimitiveTopology, render_asset::RenderAssetUsages},
@@ -25,6 +24,7 @@ pub fn generate_chunk_mesh(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ChunkMaterial>>,
+    mut images: ResMut<Assets<Image>>,
     chunks: Query<(&Parent, Entity, &Chunk), Without<Handle<Mesh>>>,
     all_chunks: Query<&Chunk>,
     world: Query<&VoxelWorld>,
@@ -60,7 +60,7 @@ pub fn generate_chunk_mesh(
             mesh.insert_attribute(ATTRIBUTE_VOXEL, vertices);
             mesh.insert_indices(bevy::render::mesh::Indices::U32(indices));
 
-            let material = materials.add(ChunkMaterial {});
+            let material = materials.add(ChunkMaterial::new(chunk, &mut images));
 
             commands.entity(chunk_id).insert(MaterialMeshBundle {
                 mesh: meshes.add(mesh),
@@ -77,7 +77,7 @@ pub fn generate_chunk_mesh(
 
     Ok(())
 }
-
+/*
 pub fn update_chunk_mesh(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -122,3 +122,4 @@ pub fn update_chunk_mesh(
 
     Ok(())
 }
+ */

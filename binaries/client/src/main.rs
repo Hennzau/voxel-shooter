@@ -1,4 +1,14 @@
-use bevy::{color::palettes::css::WHITE, prelude::*};
+use bevy::{
+    color::palettes::css::WHITE,
+    prelude::*,
+    render::{
+        settings::{RenderCreation, WgpuFeatures, WgpuSettings},
+        texture::{
+            ImageAddressMode, ImageCompareFunction, ImageSamplerBorderColor, ImageSamplerDescriptor,
+        },
+        RenderPlugin,
+    },
+};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_screen_diagnostics::{
     ScreenDiagnosticsPlugin, ScreenEntityDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
@@ -16,13 +26,17 @@ pub struct MainPlayer;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                present_mode: bevy::window::PresentMode::AutoVsync,
-                ..default()
-            }),
-            ..default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        present_mode: bevy::window::PresentMode::AutoNoVsync,
+                        ..default()
+                    }),
+                    ..default()
+                })
+                .set(ImagePlugin::default_nearest()),
+        )
         .add_plugins((CursorGrabber, PlayerManagement))
         .add_plugins((VoxelWorldPlugin, VoxelWorldRenderer))
         .add_plugins(WorldInspectorPlugin::default())
@@ -116,6 +130,10 @@ fn construct_world(mut commands: Commands) {
 fn setup(mut commands: Commands) {
     let mut player = commands.spawn((Player, MainPlayer));
 
+    let mut transform = Transform::from_xyz(7.767, 10.181, 8.326);
+    transform.rotate_x(-0.673);
+    transform.rotate_y(-0.723);
+
     player.insert(Camera3dBundle {
         projection: PerspectiveProjection {
             near: 0.1,
@@ -124,6 +142,7 @@ fn setup(mut commands: Commands) {
             ..Default::default()
         }
         .into(),
+        transform,
         ..Default::default()
     });
 

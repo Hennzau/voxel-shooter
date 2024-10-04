@@ -64,6 +64,13 @@ impl Chunk {
         }
     }
 
+    pub fn blocks_as_u8(&self) -> Vec<u8> {
+        self.blocks
+            .iter()
+            .map(|block| block.as_u8())
+            .collect::<Vec<u8>>()
+    }
+
     pub fn get_block(&self, x: usize, y: usize, z: usize) -> eyre::Result<Block> {
         if x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE {
             return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));

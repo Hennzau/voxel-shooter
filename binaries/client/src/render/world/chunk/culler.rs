@@ -19,7 +19,7 @@ fn push_face(
     block: Block,
     health: u32,
 ) {
-    let mut quad = Quad::from_direction(direction, vertices.len(), pos, block as u32 - 1, health);
+    let mut quad = Quad::from_direction(direction, vertices.len(), pos);
 
     vertices.append(&mut quad.vertices);
     indices.append(&mut quad.indices);
