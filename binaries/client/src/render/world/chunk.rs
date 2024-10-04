@@ -9,7 +9,7 @@ use voxel::world::{
     VoxelWorld,
 };
 
-use super::voxel::{ChunkMaterial, Quad, ATTRIBUTE_VOXEL};
+use super::voxel::{ChunkMaterial, ATTRIBUTE_VOXEL};
 
 pub mod culler;
 
