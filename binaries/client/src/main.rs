@@ -30,7 +30,7 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        present_mode: bevy::window::PresentMode::AutoNoVsync,
+                        present_mode: bevy::window::PresentMode::AutoVsync,
                         ..default()
                     }),
                     ..default()
@@ -130,9 +130,9 @@ fn construct_world(mut commands: Commands) {
 fn setup(mut commands: Commands) {
     let mut player = commands.spawn((Player, MainPlayer));
 
-    let mut transform = Transform::from_xyz(7.767, 10.181, 8.326);
-    transform.rotate_x(-0.673);
-    transform.rotate_y(-0.723);
+    let mut transform = Transform::from_xyz(24.003, 8.216, 3.763);
+    transform.rotate_x(-0.5);
+    transform.rotate_y(2.57);
 
     player.insert(Camera3dBundle {
         projection: PerspectiveProjection {

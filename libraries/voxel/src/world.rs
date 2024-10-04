@@ -66,32 +66,36 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
 
             let mut chunk = chunk::Chunk::new(IVec3::new(x, y, z));
 
-            for xx in 0..CHUNK_SIZE {
-                for zz in 0..CHUNK_SIZE {
-                    let height = perlin
-                        .get_noise((x * 16 + xx as i32) as f64, (z * 16 + zz as i32) as f64)
-                        as i32
-                        + 18
-                        - y * CHUNK_SIZE as i32;
+            // for xx in 0..CHUNK_SIZE {
+            //     for zz in 0..CHUNK_SIZE {
+            //         let height = perlin
+            //             .get_noise((x * 16 + xx as i32) as f64, (z * 16 + zz as i32) as f64)
+            //             as i32
+            //             + 18
+            //             - y * CHUNK_SIZE as i32;
 
-                    for yy in 0..CHUNK_SIZE {
-                        if yy as i32 >= height {
-                            continue;
-                        }
+            //         for yy in 0..CHUNK_SIZE {
+            //             if yy as i32 >= height {
+            //                 continue;
+            //             }
 
-                        let block = if yy as i32 >= height - 2 {
-                            Block::Grass
-                        } else if yy as i32 > height - 5 {
-                            Block::Dirt
-                        } else {
-                            Block::Stone
-                        };
+            //             let block = if yy as i32 >= height - 2 {
+            //                 Block::Grass
+            //             } else if yy as i32 > height - 5 {
+            //                 Block::Dirt
+            //             } else {
+            //                 Block::Stone
+            //             };
 
-                        if let Err(error) = chunk.set_block(xx, yy as usize, zz, block, 15) {
-                            eprintln!("{}", error);
-                        }
-                    }
-                }
+            //             if let Err(error) = chunk.set_block(xx, yy as usize, zz, block, 15) {
+            //                 eprintln!("{}", error);
+            //             }
+            //         }
+            //     }
+            // }
+
+            if let Err(error) = chunk.set_block(6, 6, 6, Block::Grass, 15) {
+                eprintln!("{}", error);
             }
 
             commands.entity(entity).with_children(|parent| {

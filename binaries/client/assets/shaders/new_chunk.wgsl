@@ -39,13 +39,13 @@ fn x_positive_bits(bits: u32) -> u32{
 fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
 
-    let x = f32(vertex.data & x_positive_bits(5u));
-    let y = f32(vertex.data >> 5u & x_positive_bits(5u));
-    let z = f32(vertex.data >> 10u & x_positive_bits(5u));
+    let x = u32(vertex.data & x_positive_bits(5u));
+    let y = u32(vertex.data >> 5u & x_positive_bits(5u));
+    let z = u32(vertex.data >> 10u & x_positive_bits(5u));
 
-    let u_o = f32(vertex.data >> 15u & x_positive_bits(1u));
-    let v_o = f32(vertex.data >> 16u & x_positive_bits(1u));
-    let w_o = f32(vertex.data >> 17u & x_positive_bits(1u));
+    let u_o = u32(vertex.data >> 15u & x_positive_bits(1u));
+    let v_o = u32(vertex.data >> 16u & x_positive_bits(1u));
+    let w_o = u32(vertex.data >> 17u & x_positive_bits(1u));
 
     let n_x = f32(vertex.data >> 18u & x_positive_bits(2u)) - 1.0;
     let n_y = f32(vertex.data >> 20u & x_positive_bits(2u)) - 1.0;
@@ -53,10 +53,15 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 
     out.clip_position = mesh_position_local_to_clip(
         get_world_from_local(vertex.instance_index),
-        vec4<f32>(x, y, z, 1.0),
+        vec4<f32>(f32(x), f32(y), f32(z), 1.0),
     );
 
-    out.uvw = vec3<f32>(x - u_o, y - v_o, z - w_o) / 15;
+    out.uvw.x = f32(x) - f32(u_o) + 0.25 * sign(n_x);
+    out.uvw.y = f32(y) - f32(v_o) + 0.25 * sign(n_y);
+    out.uvw.z = f32(z) - f32(w_o) + 0.25 * sign(n_z);
+
+    out.uvw = out.uvw / 15.0;
+
     out.normal = vec3<f32>(n_x, n_y, n_z);
 
     return out;
@@ -73,6 +78,11 @@ struct FragmentInput {
 @fragment
 fn fragment(input: FragmentInput) -> @location(0) vec4<f32> {
     let id = u32(textureSample(chunk, chunk_sampler, input.uvw).x * 255.0);
+
+    if (id == 0u) {
+        return vec4<f32>(input.normal, 1.0);
+    }
+
     let color = colors[id % 16u];
 
     let modifier = dot(abs(input.normal), vec3<f32>(0.15, 0.18, 0.12));

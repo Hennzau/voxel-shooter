@@ -9,7 +9,7 @@ use voxel::world::{
     VoxelWorld,
 };
 
-use super::voxel::{ChunkMaterial, ATTRIBUTE_VOXEL};
+use super::voxel::{ChunkMaterial, Quad, ATTRIBUTE_VOXEL};
 
 pub mod culler;
 
@@ -51,6 +51,12 @@ pub fn generate_chunk_mesh(
 
             let CulledMesh { vertices, indices } =
                 CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
+
+            // let Quad { vertices, indices } = Quad::from_direction(
+            //     crate::render::world::voxel::Direction::Down,
+            //     0,
+            //     IVec3::new(0, 0, 0),
+            // );
 
             let mut mesh = Mesh::new(
                 PrimitiveTopology::TriangleList,
