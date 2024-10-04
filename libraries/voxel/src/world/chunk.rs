@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use super::blocks::Block;
 
-pub const CHUNK_SIZE: usize = 15;
+pub const CHUNK_SIZE: usize = 31;
 
 #[derive(Debug, Component)]
 pub struct Chunk {
@@ -13,18 +13,18 @@ pub struct Chunk {
     pub healths: [u8; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
 
     // Mask to determine if a block is solid for fast face culling
-    pub x_axis: [u16; CHUNK_SIZE * CHUNK_SIZE],
-    pub y_axis: [u16; CHUNK_SIZE * CHUNK_SIZE],
-    pub z_axis: [u16; CHUNK_SIZE * CHUNK_SIZE],
+    pub x_axis: [u32; CHUNK_SIZE * CHUNK_SIZE],
+    pub y_axis: [u32; CHUNK_SIZE * CHUNK_SIZE],
+    pub z_axis: [u32; CHUNK_SIZE * CHUNK_SIZE],
 }
 
 pub struct ChunkMask {
-    pub left: [u16; CHUNK_SIZE * CHUNK_SIZE],
-    pub right: [u16; CHUNK_SIZE * CHUNK_SIZE],
-    pub bottom: [u16; CHUNK_SIZE * CHUNK_SIZE],
-    pub top: [u16; CHUNK_SIZE * CHUNK_SIZE],
-    pub back: [u16; CHUNK_SIZE * CHUNK_SIZE],
-    pub front: [u16; CHUNK_SIZE * CHUNK_SIZE],
+    pub left: [u32; CHUNK_SIZE * CHUNK_SIZE],
+    pub right: [u32; CHUNK_SIZE * CHUNK_SIZE],
+    pub bottom: [u32; CHUNK_SIZE * CHUNK_SIZE],
+    pub top: [u32; CHUNK_SIZE * CHUNK_SIZE],
+    pub back: [u32; CHUNK_SIZE * CHUNK_SIZE],
+    pub front: [u32; CHUNK_SIZE * CHUNK_SIZE],
 }
 
 impl ChunkMask {

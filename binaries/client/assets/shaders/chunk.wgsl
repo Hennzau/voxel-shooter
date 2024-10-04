@@ -11,6 +11,8 @@ struct VertexOutput {
     @location(1) normal: vec3<f32>,
 };
 
+const CHUNK_SIZE: f32 = 31.0;
+
 var<private> colors: array<vec3<f32>,17> = array<vec3<f32>,17>(
     vec3<f32>(0.00, 0.0, 0.00),   // Black, useless in theory
     vec3<f32>(0.07, 0.5, 0.07),   // Green (beau vert)
@@ -64,7 +66,7 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     out.uvw.y = y + v_o * 0.25;
     out.uvw.z = z + w_o * 0.25;
 
-    out.uvw = out.uvw / 15.0;
+    out.uvw = out.uvw / CHUNK_SIZE;
 
     out.normal = vec3<f32>(n_x, n_y, n_z);
 

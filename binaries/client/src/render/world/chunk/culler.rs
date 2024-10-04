@@ -21,9 +21,9 @@ fn push_face(
     indices.append(&mut quad.indices);
 }
 
-fn line_axis(axis: u16, before: bool, after: bool) -> (u16, u16) {
+fn line_axis(axis: u32, before: bool, after: bool) -> (u32, u32) {
     let visible_asc = match after {
-        true => !(axis >> 1 | 0b0100000000000000) & axis,
+        true => !(axis >> 1 | 0b01000000000000000000000000000000) & axis,
         false => !(axis >> 1) & axis,
     };
 
@@ -39,11 +39,11 @@ fn push_face_axis(
     vertices: &mut Vec<u32>,
     indices: &mut Vec<u32>,
     chunk: &Chunk,
-    count: u16,
+    count: u32,
     i: usize,
     j: usize,
     k: usize,
-    visible: u16,
+    visible: u32,
     direction: Direction,
 ) -> eyre::Result<()> {
     if visible & (1 << count) != 0 {
@@ -109,7 +109,7 @@ impl CulledMesh {
                             &mut vertices,
                             &mut indices,
                             chunk,
-                            k as u16,
+                            k as u32,
                             k,
                             i,
                             j,
@@ -120,7 +120,7 @@ impl CulledMesh {
                             &mut vertices,
                             &mut indices,
                             chunk,
-                            k as u16,
+                            k as u32,
                             k,
                             i,
                             j,
@@ -131,7 +131,7 @@ impl CulledMesh {
                             &mut vertices,
                             &mut indices,
                             chunk,
-                            k as u16,
+                            k as u32,
                             i,
                             j,
                             k,
@@ -142,7 +142,7 @@ impl CulledMesh {
                             &mut vertices,
                             &mut indices,
                             chunk,
-                            k as u16,
+                            k as u32,
                             i,
                             j,
                             k,
@@ -153,7 +153,7 @@ impl CulledMesh {
                             &mut vertices,
                             &mut indices,
                             chunk,
-                            k as u16,
+                            k as u32,
                             i,
                             k,
                             j,
@@ -164,7 +164,7 @@ impl CulledMesh {
                             &mut vertices,
                             &mut indices,
                             chunk,
-                            k as u16,
+                            k as u32,
                             i,
                             k,
                             j,

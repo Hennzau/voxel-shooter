@@ -53,87 +53,91 @@ impl VoxelWorld {
 
 fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld)>) {
     for (entity, mut world) in &mut worlds {
-        if let Some(next) = world.next_chunks.pop() {
-            let IVec3 { x, y, z } = next;
+        for _ in 0..4 {
+            // Load 4 chunks per frame if possible
+            if let Some(next) = world.next_chunks.pop() {
+                let IVec3 { x, y, z } = next;
 
-            if world.chunks.contains_key(&IVec3::new(x, y, z)) {
-                continue;
-            }
+                if world.chunks.contains_key(&IVec3::new(x, y, z)) {
+                    continue;
+                }
 
-            use perlin2d::PerlinNoise2D;
+                use perlin2d::PerlinNoise2D;
 
-            let perlin = PerlinNoise2D::new(6, 10.0, 0.5, 1.0, 2.0, (100.0, 100.0), 0.5, 101);
+                let perlin = PerlinNoise2D::new(6, 10.0, 0.5, 1.0, 2.0, (100.0, 100.0), 0.5, 101);
 
-            let mut chunk = chunk::Chunk::new(IVec3::new(x, y, z));
+                let mut chunk = chunk::Chunk::new(IVec3::new(x, y, z));
 
-            for xx in 0..CHUNK_SIZE {
-                for zz in 0..CHUNK_SIZE {
-                    let height = perlin
-                        .get_noise((x * 16 + xx as i32) as f64, (z * 16 + zz as i32) as f64)
-                        as i32
-                        + 18
-                        - y * CHUNK_SIZE as i32;
+                for xx in 0..CHUNK_SIZE {
+                    for zz in 0..CHUNK_SIZE {
+                        let height = perlin.get_noise(
+                            (x * CHUNK_SIZE as i32 + xx as i32) as f64,
+                            (z * CHUNK_SIZE as i32 + zz as i32) as f64,
+                        ) as i32
+                            + 18
+                            - y * CHUNK_SIZE as i32;
 
-                    for yy in 0..CHUNK_SIZE {
-                        if yy as i32 >= height {
-                            continue;
-                        }
+                        for yy in 0..CHUNK_SIZE {
+                            if yy as i32 >= height {
+                                continue;
+                            }
 
-                        let block = if yy as i32 >= height - 2 {
-                            Block::Grass
-                        } else if yy as i32 > height - 5 {
-                            Block::Dirt
-                        } else {
-                            Block::Stone
-                        };
+                            let block = if yy as i32 >= height - 2 {
+                                Block::Grass
+                            } else if yy as i32 > height - 5 {
+                                Block::Dirt
+                            } else {
+                                Block::Stone
+                            };
 
-                        if let Err(error) = chunk.set_block(xx, yy as usize, zz, block, 15) {
-                            eprintln!("{}", error);
+                            if let Err(error) = chunk.set_block(xx, yy as usize, zz, block, 15) {
+                                eprintln!("{}", error);
+                            }
                         }
                     }
                 }
-            }
 
-            commands.entity(entity).with_children(|parent| {
-                let id = parent
-                    .spawn(chunk)
-                    .insert(Name::new(format!("Chunk ({}, {}, {})", x, y, z)))
-                    .id();
+                commands.entity(entity).with_children(|parent| {
+                    let id = parent
+                        .spawn(chunk)
+                        .insert(Name::new(format!("Chunk ({}, {}, {})", x, y, z)))
+                        .id();
 
-                world.chunks.insert(IVec3::new(x, y, z), id);
-            });
+                    world.chunks.insert(IVec3::new(x, y, z), id);
+                });
 
-            let ChunkNeighbors {
-                left,
-                right,
-                front,
-                back,
-                top,
-                bottom,
-            } = world.neighbours(IVec3::new(x, y, z));
+                let ChunkNeighbors {
+                    left,
+                    right,
+                    front,
+                    back,
+                    top,
+                    bottom,
+                } = world.neighbours(IVec3::new(x, y, z));
 
-            if let Some(left) = left {
-                commands.entity(left).insert(ChunkUpdated);
-            }
+                if let Some(left) = left {
+                    commands.entity(left).insert(ChunkUpdated);
+                }
 
-            if let Some(right) = right {
-                commands.entity(right).insert(ChunkUpdated);
-            }
+                if let Some(right) = right {
+                    commands.entity(right).insert(ChunkUpdated);
+                }
 
-            if let Some(front) = front {
-                commands.entity(front).insert(ChunkUpdated);
-            }
+                if let Some(front) = front {
+                    commands.entity(front).insert(ChunkUpdated);
+                }
 
-            if let Some(back) = back {
-                commands.entity(back).insert(ChunkUpdated);
-            }
+                if let Some(back) = back {
+                    commands.entity(back).insert(ChunkUpdated);
+                }
 
-            if let Some(top) = top {
-                commands.entity(top).insert(ChunkUpdated);
-            }
+                if let Some(top) = top {
+                    commands.entity(top).insert(ChunkUpdated);
+                }
 
-            if let Some(bottom) = bottom {
-                commands.entity(bottom).insert(ChunkUpdated);
+                if let Some(bottom) = bottom {
+                    commands.entity(bottom).insert(ChunkUpdated);
+                }
             }
         }
     }

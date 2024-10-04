@@ -4,8 +4,8 @@ use bevy::prelude::*;
 use bevy::render::mesh::MeshVertexBufferLayoutRef;
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::render_resource::{
-    AsBindGroup, Extent3d, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
-    TextureDimension, TextureFormat,
+    AsBindGroup, Extent3d, PolygonMode, RenderPipelineDescriptor, ShaderRef,
+    SpecializedMeshPipelineError, TextureDimension, TextureFormat,
 };
 use bevy::render::{mesh::MeshVertexAttribute, render_resource::VertexFormat};
 
@@ -82,7 +82,7 @@ impl Material for ChunkMaterial {
         let vertex_layout = layout
             .0
             .get_layout(&[ATTRIBUTE_VOXEL.at_shader_location(0)])?;
-        // descriptor.primitive.polygon_mode = PolygonMode::Line;
+        descriptor.primitive.polygon_mode = PolygonMode::Line;
         descriptor.vertex.buffers = vec![vertex_layout];
         Ok(())
     }
