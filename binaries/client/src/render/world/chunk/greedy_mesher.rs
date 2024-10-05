@@ -8,23 +8,6 @@ pub struct GreedyMesh {
     pub indices: Vec<u32>,
 }
 
-fn present_neighbours(
-    desc: Option<&Chunk>,
-    asc: Option<&Chunk>,
-    i: usize,
-    j: usize,
-) -> (bool, bool) {
-    let before = desc
-        .map(|chunk| chunk.x_axis[i + j * CHUNK_SIZE] & (1 << (CHUNK_SIZE - 1)) != 0)
-        .unwrap_or(false);
-
-    let after = asc
-        .map(|chunk| chunk.x_axis[i + j * CHUNK_SIZE] & 1 != 0)
-        .unwrap_or(false);
-
-    (before, after)
-}
-
 fn line(axis: u32, desc: bool, asc: bool) -> (u32, u32) {
     let visible_desc = match desc {
         true => !(axis << 1 | 1) & axis,
@@ -59,13 +42,12 @@ fn push_vertices(
     mut planes: [[u32; CHUNK_SIZE]; CHUNK_SIZE],
     direction: Direction,
 ) {
-    /*
     for k in 0..CHUNK_SIZE {
         for i in 0..CHUNK_SIZE {
             let mut j = 0;
 
             while j < CHUNK_SIZE as u32 {
-                j += planes[k][i].trailing_zeros();
+                j += (planes[k][i] >> j).trailing_zeros();
 
                 if j >= CHUNK_SIZE as u32 {
                     continue;
@@ -87,8 +69,6 @@ fn push_vertices(
 
                     w += 1;
                 }
-
-                // Construct the quad
 
                 let pos = match direction {
                     Direction::Left => IVec3::new(k as i32, i as i32, j as i32),
@@ -113,42 +93,7 @@ fn push_vertices(
                 vertices.extend(quad_vertices);
                 indices.extend(quad_indices);
 
-                j += std::cmp::max(1, h) as u32;
-            }
-        }
-    }
-     */
-
-    for k in 0..CHUNK_SIZE {
-        for i in 0..CHUNK_SIZE {
-            let mut col = planes[k][i].trailing_zeros() as usize;
-
-            while col != 0 {
-                let j = col.trailing_zeros() as usize;
-                col &= col - 1;
-
-                let pos = match direction {
-                    Direction::Left => IVec3::new(k as i32, i as i32, j as i32),
-                    Direction::Right => IVec3::new(k as i32, i as i32, j as i32),
-                    Direction::Down => IVec3::new(i as i32, k as i32, j as i32),
-                    Direction::Up => IVec3::new(i as i32, k as i32, j as i32),
-                    Direction::Back => IVec3::new(i as i32, j as i32, k as i32),
-                    Direction::Front => IVec3::new(i as i32, j as i32, k as i32),
-                };
-
-                let size = match direction {
-                    Direction::Left | Direction::Right => UVec3::new(1, 1 as u32, 1 as u32),
-                    Direction::Down | Direction::Up => UVec3::new(1 as u32, 1, 1 as u32),
-                    Direction::Back | Direction::Front => UVec3::new(1 as u32, 1 as u32, 1),
-                };
-
-                let Quad {
-                    vertices: quad_vertices,
-                    indices: quad_indices,
-                } = Quad::from_direction(direction, vertices.len(), pos, size);
-
-                vertices.extend(quad_vertices);
-                indices.extend(quad_indices);
+                j += h;
             }
         }
     }
@@ -177,9 +122,29 @@ impl GreedyMesh {
                 let y_axis = chunk.y_axis[i + j * CHUNK_SIZE];
                 let z_axis = chunk.z_axis[i + j * CHUNK_SIZE];
 
-                let (left, right) = present_neighbours(left, right, i, j);
-                let (bottom, top) = present_neighbours(bottom, top, i, j);
-                let (back, front) = present_neighbours(back, front, i, j);
+                let left = left
+                    .map(|chunk| chunk.x_axis[i + j * CHUNK_SIZE] & (1 << (CHUNK_SIZE - 1)) != 0)
+                    .unwrap_or(false);
+
+                let right = right
+                    .map(|chunk| chunk.x_axis[i + j * CHUNK_SIZE] & 1 != 0)
+                    .unwrap_or(false);
+
+                let bottom = bottom
+                    .map(|chunk| chunk.y_axis[i + j * CHUNK_SIZE] & (1 << (CHUNK_SIZE - 1)) != 0)
+                    .unwrap_or(false);
+
+                let top = top
+                    .map(|chunk| chunk.y_axis[i + j * CHUNK_SIZE] & 1 != 0)
+                    .unwrap_or(false);
+
+                let back = back
+                    .map(|chunk| chunk.z_axis[i + j * CHUNK_SIZE] & (1 << (CHUNK_SIZE - 1)) != 0)
+                    .unwrap_or(false);
+
+                let front = front
+                    .map(|chunk| chunk.z_axis[i + j * CHUNK_SIZE] & 1 != 0)
+                    .unwrap_or(false);
 
                 // This represent the exact faces that are visible, we now push them in another data structure that contains all the planes that are visible
                 let (visible_left, visible_right) = line(x_axis, left, right);

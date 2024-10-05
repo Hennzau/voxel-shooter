@@ -98,9 +98,9 @@ fn add_chunk_to_world(
 
 fn construct_world(mut commands: Commands) {
     let mut chunks = Vec::new();
-    for x in 0..1 {
-        for y in 0..1 {
-            for z in 0..1 {
+    for x in -5..=5 {
+        for y in 0..=2 {
+            for z in -5..=5 {
                 chunks.push(IVec3::new(x, y, z));
             }
         }
@@ -119,7 +119,6 @@ fn construct_world(mut commands: Commands) {
     });
 }
 
-/// set up a simple 3D scene
 fn setup(mut commands: Commands) {
     let mut player = commands.spawn((Player, MainPlayer));
 

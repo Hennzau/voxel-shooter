@@ -26,9 +26,6 @@ pub struct Quad {
     pub indices: Vec<u32>,
 }
 
-// x: 5, y: 5, z: 5 -> 15
-// u_offset: 1, v_offset: 1, z_offset: 1 -> 3
-// x_n: 2, y_n: 2, z_n: 2 -> 6
 pub const ATTRIBUTE_VOXEL: MeshVertexAttribute =
     MeshVertexAttribute::new("VoxelVertex", 91010550917, VertexFormat::Uint32);
 

@@ -53,8 +53,7 @@ impl VoxelWorld {
 
 fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld)>) {
     for (entity, mut world) in &mut worlds {
-        for _ in 0..4 {
-            // Load 4 chunks per frame if possible
+        for _ in 0..8 {
             if let Some(next) = world.next_chunks.pop() {
                 let IVec3 { x, y, z } = next;
 

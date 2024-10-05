@@ -3,7 +3,6 @@ use bevy::{
     render::{mesh::PrimitiveTopology, render_asset::RenderAssetUsages},
 };
 
-use culler::CulledMesh;
 use greedy_mesher::GreedyMesh;
 use voxel::world::{
     chunk::{Chunk, ChunkNeighbors, ChunkUpdated, CHUNK_SIZE},
@@ -51,13 +50,8 @@ pub fn generate_chunk_mesh(
                 get_chunk(&all_chunks, back),
             );
 
-            // let CulledMesh { vertices, indices } =
-            //     CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
-
             let GreedyMesh { vertices, indices } =
                 GreedyMesh::new(chunk, left, right, bottom, top, back, front)?;
-
-            println!("Vertex count: {}", vertices.len());
 
             let mut mesh = Mesh::new(
                 PrimitiveTopology::TriangleList,
@@ -123,8 +117,8 @@ pub fn update_chunk_mesh(
                 get_chunk(&all_chunks, back),
             );
 
-            let CulledMesh { vertices, indices } =
-                CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
+            let GreedyMesh { vertices, indices } =
+                GreedyMesh::new(chunk, left, right, bottom, top, back, front)?;
 
             if let Some(mesh) = meshes.get_mut(mesh.id()) {
                 mesh.remove_attribute(ATTRIBUTE_VOXEL);
