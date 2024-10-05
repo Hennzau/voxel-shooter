@@ -8,9 +8,8 @@ pub const CHUNK_SIZE: usize = 31;
 pub struct Chunk {
     pub pos: IVec3,
 
-    // Store the blocks in a flat array
+    // Store the blocks in a flat array : 4bits for the block type and 4bits for the block health
     pub blocks: [u8; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
-    pub healths: [u8; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
 
     // Mask to determine if a block is solid for fast face culling
     pub x_axis: [u32; CHUNK_SIZE * CHUNK_SIZE],
@@ -56,15 +55,14 @@ impl Chunk {
     pub fn new(pos: IVec3) -> Self {
         Self {
             pos,
-            blocks: [Block::Air.as_u8(); CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
-            healths: [15; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
+            blocks: [15 << 4 | Block::Air.as_u8(); CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
             x_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
             y_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
             z_axis: [0b0; CHUNK_SIZE * CHUNK_SIZE],
         }
     }
 
-    pub fn blocks_as_u8(&self) -> Vec<u8> {
+    pub fn blocks(&self) -> Vec<u8> {
         self.blocks.into()
     }
 
@@ -73,8 +71,8 @@ impl Chunk {
             return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));
         }
 
-        Ok(Block::from_u8(
-            self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE],
+        Ok(Block::from(
+            self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] & 0b1111,
         ))
     }
 
@@ -83,7 +81,7 @@ impl Chunk {
             return Err(eyre::eyre!(format!("Index {:?} out of bounds", (x, y, z))));
         }
 
-        Ok(self.healths[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE])
+        Ok(self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] >> 4)
     }
 
     pub fn set_block(
@@ -99,7 +97,7 @@ impl Chunk {
         }
 
         self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = block.as_u8();
-        self.healths[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = health;
+        self.blocks[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] |= health << 4;
 
         self.x_axis[y + z * CHUNK_SIZE] |= 1 << x;
         self.y_axis[x + z * CHUNK_SIZE] |= 1 << y;

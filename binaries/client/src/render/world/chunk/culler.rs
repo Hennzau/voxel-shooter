@@ -8,14 +8,8 @@ pub struct CulledMesh {
     pub indices: Vec<u32>,
 }
 
-fn push_face(
-    vertices: &mut Vec<u32>,
-    indices: &mut Vec<u32>,
-    pos: IVec3,
-    direction: Direction,
-    health: u32,
-) {
-    let mut quad = Quad::from_direction(direction, vertices.len(), pos, health);
+fn push_face(vertices: &mut Vec<u32>, indices: &mut Vec<u32>, pos: IVec3, direction: Direction) {
+    let mut quad = Quad::from_direction(direction, vertices.len(), pos);
 
     vertices.append(&mut quad.vertices);
     indices.append(&mut quad.indices);
@@ -38,7 +32,6 @@ fn line_axis(axis: u32, before: bool, after: bool) -> (u32, u32) {
 fn push_face_axis(
     vertices: &mut Vec<u32>,
     indices: &mut Vec<u32>,
-    chunk: &Chunk,
     count: u32,
     i: usize,
     j: usize,
@@ -48,9 +41,8 @@ fn push_face_axis(
 ) -> eyre::Result<()> {
     if visible & (1 << count) != 0 {
         let pos = IVec3::new(i as i32, j as i32, k as i32);
-        let health = chunk.get_health(i, j, k)? as u32;
 
-        push_face(vertices, indices, pos, direction, health);
+        push_face(vertices, indices, pos, direction);
     }
 
     Ok(())
@@ -108,7 +100,6 @@ impl CulledMesh {
                         push_face_axis(
                             &mut vertices,
                             &mut indices,
-                            chunk,
                             k as u32,
                             k,
                             i,
@@ -119,7 +110,6 @@ impl CulledMesh {
                         push_face_axis(
                             &mut vertices,
                             &mut indices,
-                            chunk,
                             k as u32,
                             k,
                             i,
@@ -130,7 +120,6 @@ impl CulledMesh {
                         push_face_axis(
                             &mut vertices,
                             &mut indices,
-                            chunk,
                             k as u32,
                             i,
                             j,
@@ -141,7 +130,6 @@ impl CulledMesh {
                         push_face_axis(
                             &mut vertices,
                             &mut indices,
-                            chunk,
                             k as u32,
                             i,
                             j,
@@ -152,7 +140,6 @@ impl CulledMesh {
                         push_face_axis(
                             &mut vertices,
                             &mut indices,
-                            chunk,
                             k as u32,
                             i,
                             k,
@@ -163,7 +150,6 @@ impl CulledMesh {
                         push_face_axis(
                             &mut vertices,
                             &mut indices,
-                            chunk,
                             k as u32,
                             i,
                             k,

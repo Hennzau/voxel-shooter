@@ -48,7 +48,7 @@ impl ChunkMaterial {
                 depth_or_array_layers: CHUNK_SIZE as u32,
             },
             TextureDimension::D3,
-            chunk.blocks_as_u8(),
+            chunk.blocks(),
             TextureFormat::R8Unorm,
             RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD,
         );
@@ -60,7 +60,7 @@ impl ChunkMaterial {
 
     pub fn update(&mut self, chunk: &Chunk, images: &mut ResMut<Assets<Image>>) {
         if let Some(image) = images.get_mut(&self.image_3d) {
-            image.data = chunk.blocks_as_u8();
+            image.data = chunk.blocks();
         }
     }
 }
@@ -89,12 +89,7 @@ impl Material for ChunkMaterial {
 }
 
 impl Quad {
-    pub fn from_direction(
-        direction: Direction,
-        vertices_offset: usize,
-        pos: IVec3,
-        health: u32,
-    ) -> Self {
+    pub fn from_direction(direction: Direction, vertices_offset: usize, pos: IVec3) -> Self {
         let x = (pos.x as u32).clamp(0, CHUNK_SIZE as u32 - 1);
         let y = (pos.y as u32).clamp(0, CHUNK_SIZE as u32 - 1);
         let z = (pos.z as u32).clamp(0, CHUNK_SIZE as u32 - 1);
@@ -103,13 +98,10 @@ impl Quad {
         let y1 = (y + 1).clamp(0, CHUNK_SIZE as u32);
         let z1 = (z + 1).clamp(0, CHUNK_SIZE as u32);
 
-        let health = health.clamp(0, 15);
-
         let vertices = match direction {
             Direction::Left => {
                 vec![
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 0 << 18
                         | 1 << 17
@@ -118,8 +110,7 @@ impl Quad {
                         | z << 10
                         | y << 5
                         | x,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 0 << 18
                         | 0 << 17
@@ -128,8 +119,7 @@ impl Quad {
                         | z1 << 10
                         | y << 5
                         | x,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 0 << 18
                         | 0 << 17
@@ -138,8 +128,7 @@ impl Quad {
                         | z1 << 10
                         | y1 << 5
                         | x,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 0 << 18
                         | 1 << 17
@@ -152,8 +141,7 @@ impl Quad {
             }
             Direction::Right => {
                 vec![
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 2 << 18
                         | 0 << 17
@@ -162,8 +150,7 @@ impl Quad {
                         | z1 << 10
                         | y << 5
                         | x1,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 2 << 18
                         | 1 << 17
@@ -172,8 +159,7 @@ impl Quad {
                         | z << 10
                         | y << 5
                         | x1,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 2 << 18
                         | 1 << 17
@@ -182,8 +168,7 @@ impl Quad {
                         | z << 10
                         | y1 << 5
                         | x1,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 1 << 20
                         | 2 << 18
                         | 0 << 17
@@ -196,8 +181,7 @@ impl Quad {
             }
             Direction::Down => {
                 vec![
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 0 << 20
                         | 1 << 18
                         | 0 << 17
@@ -206,8 +190,7 @@ impl Quad {
                         | z1 << 10
                         | y << 5
                         | x,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 0 << 20
                         | 1 << 18
                         | 1 << 17
@@ -216,8 +199,7 @@ impl Quad {
                         | z << 10
                         | y << 5
                         | x,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 0 << 20
                         | 1 << 18
                         | 1 << 17
@@ -226,8 +208,7 @@ impl Quad {
                         | z << 10
                         | y << 5
                         | x1,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 0 << 20
                         | 1 << 18
                         | 0 << 17
@@ -240,8 +221,7 @@ impl Quad {
             }
             Direction::Up => {
                 vec![
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 2 << 20
                         | 1 << 18
                         | 1 << 17
@@ -250,8 +230,7 @@ impl Quad {
                         | z << 10
                         | y1 << 5
                         | x,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 2 << 20
                         | 1 << 18
                         | 0 << 17
@@ -260,8 +239,7 @@ impl Quad {
                         | z1 << 10
                         | y1 << 5
                         | x,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 2 << 20
                         | 1 << 18
                         | 0 << 17
@@ -270,8 +248,7 @@ impl Quad {
                         | z1 << 10
                         | y1 << 5
                         | x1,
-                    health << 24
-                        | 1 << 22
+                    1 << 22
                         | 2 << 20
                         | 1 << 18
                         | 1 << 17
@@ -284,8 +261,7 @@ impl Quad {
             }
             Direction::Back => {
                 vec![
-                    health << 24
-                        | 0 << 22
+                    0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -294,8 +270,7 @@ impl Quad {
                         | z << 10
                         | y << 5
                         | x,
-                    health << 24
-                        | 0 << 22
+                    0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -304,8 +279,7 @@ impl Quad {
                         | z << 10
                         | y1 << 5
                         | x,
-                    health << 24
-                        | 0 << 22
+                    0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -314,8 +288,7 @@ impl Quad {
                         | z << 10
                         | y1 << 5
                         | x1,
-                    health << 24
-                        | 0 << 22
+                    0 << 22
                         | 1 << 20
                         | 1 << 18
                         | 1 << 17
@@ -328,8 +301,7 @@ impl Quad {
             }
             Direction::Front => {
                 vec![
-                    health << 24
-                        | 2 << 22
+                    2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17
@@ -338,8 +310,7 @@ impl Quad {
                         | z1 << 10
                         | y1 << 5
                         | x,
-                    health << 24
-                        | 2 << 22
+                    2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17
@@ -348,8 +319,7 @@ impl Quad {
                         | z1 << 10
                         | y << 5
                         | x,
-                    health << 24
-                        | 2 << 22
+                    2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17
@@ -358,8 +328,7 @@ impl Quad {
                         | z1 << 10
                         | y << 5
                         | x1,
-                    health << 24
-                        | 2 << 22
+                    2 << 22
                         | 1 << 20
                         | 1 << 18
                         | 0 << 17

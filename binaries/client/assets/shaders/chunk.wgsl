@@ -9,7 +9,6 @@ struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
     @location(0) uvw: vec3<f32>,
     @location(1) normal: vec3<f32>,
-    @location(2) health: f32,
 };
 
 const CHUNK_SIZE: f32 = 31.0;
@@ -71,7 +70,6 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 
     out.uvw = out.uvw / CHUNK_SIZE;
     out.normal = vec3<f32>(n_x, n_y, n_z);
-    out.health = health;
 
     return out;
 }
@@ -82,16 +80,18 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 struct FragmentInput {
     @location(0) uvw: vec3<f32>,
     @location(1) normal: vec3<f32>,
-    @location(2) health: f32,
 };
 
 @fragment
 fn fragment(input: FragmentInput) -> @location(0) vec4<f32> {
-    let id = u32(textureSample(chunk, chunk_sampler, input.uvw).x * 255.0);
+    let block = u32(textureSample(chunk, chunk_sampler, input.uvw).x * 255.0);
+
+    let id = block & x_positive_bits(4u);
+    let health = f32(block >> 4u) / 15.0;
 
     let color = colors[id % 16u];
 
     let modifier = dot(abs(input.normal), vec3<f32>(0.15, 0.18, 0.12));
 
-    return vec4<f32>((color - modifier) * input.health, 1.0);
+    return vec4<f32>((color - modifier) * health, 1.0);
 }

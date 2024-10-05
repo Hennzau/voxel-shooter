@@ -52,6 +52,8 @@ pub fn generate_chunk_mesh(
             let CulledMesh { vertices, indices } =
                 CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
 
+            println!("Vertex count: {}", vertices.len());
+
             let mut mesh = Mesh::new(
                 PrimitiveTopology::TriangleList,
                 RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD,

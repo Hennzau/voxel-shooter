@@ -11,7 +11,7 @@ impl Block {
         *self as u8
     }
 
-    pub fn from_u8(value: u8) -> Self {
+    pub fn from(value: u8) -> Self {
         match value {
             0 => Self::Air,
             1 => Self::Grass,
