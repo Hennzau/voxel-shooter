@@ -4,6 +4,7 @@ use bevy::{
 };
 
 use culler::CulledMesh;
+use greedy_mesher::GreedyMesh;
 use voxel::world::{
     chunk::{Chunk, ChunkNeighbors, ChunkUpdated, CHUNK_SIZE},
     VoxelWorld,
@@ -12,6 +13,7 @@ use voxel::world::{
 use super::voxel::{ChunkMaterial, ATTRIBUTE_VOXEL};
 
 pub mod culler;
+pub mod greedy_mesher;
 
 fn get_chunk<'a>(all_chunks: &'a Query<&Chunk>, entity: Option<Entity>) -> Option<&'a Chunk> {
     match entity {
@@ -49,8 +51,11 @@ pub fn generate_chunk_mesh(
                 get_chunk(&all_chunks, back),
             );
 
-            let CulledMesh { vertices, indices } =
-                CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
+            // let CulledMesh { vertices, indices } =
+            //     CulledMesh::new(chunk, left, right, bottom, top, back, front)?;
+
+            let GreedyMesh { vertices, indices } =
+                GreedyMesh::new(chunk, left, right, bottom, top, back, front)?;
 
             println!("Vertex count: {}", vertices.len());
 

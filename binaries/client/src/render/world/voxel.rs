@@ -89,14 +89,19 @@ impl Material for ChunkMaterial {
 }
 
 impl Quad {
-    pub fn from_direction(direction: Direction, vertices_offset: usize, pos: IVec3) -> Self {
+    pub fn from_direction(
+        direction: Direction,
+        vertices_offset: usize,
+        pos: IVec3,
+        size: UVec3,
+    ) -> Self {
         let x = (pos.x as u32).clamp(0, CHUNK_SIZE as u32 - 1);
         let y = (pos.y as u32).clamp(0, CHUNK_SIZE as u32 - 1);
         let z = (pos.z as u32).clamp(0, CHUNK_SIZE as u32 - 1);
 
-        let x1 = (x + 1).clamp(0, CHUNK_SIZE as u32);
-        let y1 = (y + 1).clamp(0, CHUNK_SIZE as u32);
-        let z1 = (z + 1).clamp(0, CHUNK_SIZE as u32);
+        let x1 = (x + size.x).clamp(0, CHUNK_SIZE as u32);
+        let y1 = (y + size.y).clamp(0, CHUNK_SIZE as u32);
+        let z1 = (z + size.z).clamp(0, CHUNK_SIZE as u32);
 
         let vertices = match direction {
             Direction::Left => {

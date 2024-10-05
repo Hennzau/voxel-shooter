@@ -16,6 +16,9 @@ const CHUNK_SIZE: f32 = 31.0;
 var<private> colors: array<vec3<f32>,17> = array<vec3<f32>,17>(
     vec3<f32>(0.00, 0.0, 0.00),   // Black, useless in theory
     vec3<f32>(0.07, 0.5, 0.07),   // Green (beau vert)
+    vec3<f32>(0.5, 0.25, 0.0),  // Brown
+    vec3<f32>(0.7, 0.7, 0.7),   // Light Grey
+    vec3<f32>(0.3, 0.3, 0.3),   // Dark Grey
     vec3<f32>(0.0, 0.75, 1.0),  // Sky blue
     vec3<f32>(1.0, 0.5, 0.0),   // Orange
     vec3<f32>(1.0, 0.2, 0.2),   // Coral Red
@@ -23,11 +26,8 @@ var<private> colors: array<vec3<f32>,17> = array<vec3<f32>,17>(
     vec3<f32>(1.0, 1.0, 0.0),   // Yellow
     vec3<f32>(0.0, 0.5, 0.5),   // Teal
     vec3<f32>(0.9, 0.1, 0.8),   // Magenta
-    vec3<f32>(0.5, 0.25, 0.0),  // Brown
     vec3<f32>(0.4, 0.8, 0.4),   // Soft Green
     vec3<f32>(0.0, 0.0, 0.75),  // Deep Blue
-    vec3<f32>(0.7, 0.7, 0.7),   // Light Grey
-    vec3<f32>(0.3, 0.3, 0.3),   // Dark Grey
     vec3<f32>(1.0, 0.6, 0.8),   // Pastel Pink
     vec3<f32>(0.2, 0.8, 0.2),   // Bright Green
     vec3<f32>(1.0, 0.8, 0.6)    // Peach

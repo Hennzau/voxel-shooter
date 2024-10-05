@@ -98,9 +98,9 @@ fn add_chunk_to_world(
 
 fn construct_world(mut commands: Commands) {
     let mut chunks = Vec::new();
-    for x in -5..5 {
-        for y in 0..2 {
-            for z in -5..5 {
+    for x in 0..1 {
+        for y in 0..1 {
+            for z in 0..1 {
                 chunks.push(IVec3::new(x, y, z));
             }
         }
@@ -123,9 +123,9 @@ fn construct_world(mut commands: Commands) {
 fn setup(mut commands: Commands) {
     let mut player = commands.spawn((Player, MainPlayer));
 
-    let mut transform = Transform::from_xyz(63.425, 51.156, -68.056);
+    let mut transform = Transform::from_xyz(-17.526, 26.574, 57.248);
     transform.rotate_x(-0.5);
-    transform.rotate_y(2.57);
+    transform.rotate_y(-0.5);
 
     player.insert(Camera3dBundle {
         projection: PerspectiveProjection {

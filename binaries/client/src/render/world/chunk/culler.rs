@@ -1,4 +1,4 @@
-use bevy::math::IVec3;
+use bevy::math::{IVec3, UVec3};
 use voxel::world::chunk::{Chunk, CHUNK_SIZE};
 
 use crate::render::world::voxel::{Direction, Quad};
@@ -9,7 +9,7 @@ pub struct CulledMesh {
 }
 
 fn push_face(vertices: &mut Vec<u32>, indices: &mut Vec<u32>, pos: IVec3, direction: Direction) {
-    let mut quad = Quad::from_direction(direction, vertices.len(), pos);
+    let mut quad = Quad::from_direction(direction, vertices.len(), pos, UVec3::ONE);
 
     vertices.append(&mut quad.vertices);
     indices.append(&mut quad.indices);
