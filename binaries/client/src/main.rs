@@ -1,3 +1,4 @@
+
 use bevy::{color::palettes::css::WHITE, prelude::*};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_screen_diagnostics::{
@@ -122,7 +123,7 @@ fn construct_world(mut commands: Commands) {
 fn setup(mut commands: Commands) {
     let mut player = commands.spawn((Player, MainPlayer));
 
-    let mut transform = Transform::from_xyz(-17.526, 26.574, 57.248);
+    let mut transform = Transform::from_xyz(-17.526, 78.574, 57.248);
     transform.rotate_x(-0.5);
     transform.rotate_y(-0.5);
 

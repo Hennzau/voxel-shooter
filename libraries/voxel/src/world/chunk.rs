@@ -39,6 +39,23 @@ impl ChunkMask {
     }
 }
 
+#[derive(Debug, Component)]
+pub struct ChunkModification {
+    pub blocks: Vec<(UVec3, Block, u8)>,
+}
+
+impl ChunkModification {
+    pub fn new() -> Self {
+        Self { blocks: Vec::new() }
+    }
+}
+
+#[derive(Debug, Component)]
+pub struct TerrainGenerated;
+
+#[derive(Debug, Component)]
+pub struct VegetationGenerated;
+
 pub struct ChunkNeighbors {
     pub left: Option<Entity>,
     pub right: Option<Entity>,

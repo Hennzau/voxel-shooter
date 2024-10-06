@@ -4,6 +4,9 @@ pub enum Block {
     Grass = 1,
     Dirt = 2,
     Stone = 3,
+    LightGrass = 4,
+    Wood = 5,
+    Leaves = 6,
 }
 
 impl Block {
@@ -17,6 +20,9 @@ impl Block {
             1 => Self::Grass,
             2 => Self::Dirt,
             3 => Self::Stone,
+            4 => Self::LightGrass,
+            5 => Self::Wood,
+            6 => Self::Leaves,
             _ => Self::Air,
         }
     }
