@@ -21,6 +21,7 @@ var<private> colors: array<vec3<f32>,17> = array<vec3<f32>,17>(
     vec3<f32>(0.07, 0.6, 0.07), // Light Grass
     vec3<f32>(0.35, 0.20, 0.0),  // Woods
     vec3<f32>(0.07, 0.3, 0.07), // Leaves
+    vec3<f32>(0.15, 0.6, 0.2), // Light Leaves
     vec3<f32>(0.3, 0.3, 0.3),   // Dark Grey
     vec3<f32>(0.0, 0.75, 1.0),  // Sky blue
     vec3<f32>(1.0, 0.5, 0.0),   // Orange
@@ -30,7 +31,6 @@ var<private> colors: array<vec3<f32>,17> = array<vec3<f32>,17>(
     vec3<f32>(0.9, 0.1, 0.8),   // Magenta
     vec3<f32>(0.0, 0.0, 0.75),  // Deep Blue
     vec3<f32>(1.0, 0.6, 0.8),   // Pastel Pink
-    vec3<f32>(1.0, 0.8, 0.6)    // Peach
 );
 
 fn x_positive_bits(bits: u32) -> u32 {

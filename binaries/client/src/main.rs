@@ -1,5 +1,4 @@
-
-use bevy::{color::palettes::css::WHITE, prelude::*};
+use bevy::{color::palettes::css::WHITE, prelude::*, render::primitives::Frustum};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_screen_diagnostics::{
     ScreenDiagnosticsPlugin, ScreenEntityDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
@@ -99,9 +98,9 @@ fn add_chunk_to_world(
 
 fn construct_world(mut commands: Commands) {
     let mut chunks = Vec::new();
-    for x in -5..=5 {
+    for x in -9..=9 {
         for y in 0..=2 {
-            for z in -5..=5 {
+            for z in -9..=9 {
                 chunks.push(IVec3::new(x, y, z));
             }
         }

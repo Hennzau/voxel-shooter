@@ -1,4 +1,9 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{
+    math::{bounding::Aabb3d, Vec3A},
+    prelude::*,
+    render::primitives::Aabb,
+    utils::HashMap,
+};
 use blocks::Block;
 use chunk::{
     Chunk, ChunkModification, ChunkNeighbors, ChunkUpdated, TerrainGenerated, VegetationGenerated,
@@ -109,7 +114,7 @@ impl VoxelWorld {
         }
     }
 
-    pub fn update_neighbors(&mut self, commands: &mut Commands, pos: IVec3) {
+    pub fn update_neighbors(&self, commands: &mut Commands, pos: IVec3) {
         let ChunkNeighbors {
             left,
             right,
@@ -148,12 +153,12 @@ impl VoxelWorld {
 fn generate_terrain(
     mut commands: Commands,
     worlds: Query<&VoxelWorld>,
-    mut chunks: Query<(Entity, &Chunk), Without<TerrainGenerated>>,
+    mut chunks: Query<(Entity, &mut Chunk), Without<TerrainGenerated>>,
 ) {
     for world in &worlds {
         let mut count = 0;
-        for (entity, chunk) in &mut chunks {
-            if count >= 4 {
+        for (entity, mut chunk) in &mut chunks {
+            if count >= 10 {
                 break;
             }
             count += 1;
@@ -197,12 +202,16 @@ fn generate_terrain(
 
                         let random_health = (rand::random::<u8>() % 4) + 12;
 
-                        world.set_block(&mut commands, x, y, z, block, random_health);
+                        if let Err(error) = chunk.set_block(xx, yy, zz, block, random_health) {
+                            eprintln!("{}", error);
+                        }
                     }
                 }
             }
 
             commands.entity(entity).insert(TerrainGenerated);
+            commands.entity(entity).insert(ChunkUpdated);
+            world.update_neighbors(&mut commands, chunk.pos);
         }
     }
 }
@@ -210,11 +219,11 @@ fn generate_terrain(
 fn generate_vegetation(
     mut commands: Commands,
     worlds: Query<&VoxelWorld>,
-    mut chunks: Query<(Entity, &Chunk), Without<VegetationGenerated>>,
+    chunks: Query<(Entity, &Chunk), Without<VegetationGenerated>>,
 ) {
     for world in &worlds {
         let mut count = 0;
-        for (entity, chunk) in &mut chunks {
+        for (entity, chunk) in &chunks {
             if count >= 4 {
                 break;
             }
@@ -226,11 +235,11 @@ fn generate_vegetation(
 
             let terrain = PerlinNoise2D::new(6, 10.0, 0.5, 1.0, 2.0, (100.0, 100.0), 0.5, 101);
 
-            let trees = (0..8)
+            let trees = (0..5)
                 .map(|_| {
                     (
-                        rand::random::<u32>() % CHUNK_SIZE as u32,
-                        rand::random::<u32>() % CHUNK_SIZE as u32,
+                        rand::random::<u32>() % CHUNK_SIZE as u32 - 1,
+                        rand::random::<u32>() % CHUNK_SIZE as u32 - 1,
                     )
                 })
                 .collect::<Vec<_>>();
@@ -241,11 +250,11 @@ fn generate_vegetation(
 
                 let height = terrain.get_noise(x as f64, z as f64) as i32 + 20 + CHUNK_SIZE as i32;
 
-                if y * (CHUNK_SIZE as i32) < height {
+                if height >= y * CHUNK_SIZE as i32 + CHUNK_SIZE as i32 {
                     continue;
                 }
 
-                if y * (CHUNK_SIZE as i32) > height + CHUNK_SIZE as i32 {
+                if height < y * CHUNK_SIZE as i32 {
                     continue;
                 }
 
@@ -283,7 +292,7 @@ fn load_chunk(mut commands: Commands, mut worlds: Query<(Entity, &mut VoxelWorld
 fn update_chunk(
     mut commands: Commands,
     mut worlds: Query<&mut VoxelWorld>,
-    mut chunks: Query<(Entity, &mut Chunk, &ChunkModification)>,
+    mut chunks: Query<(Entity, &mut Chunk, &ChunkModification), Without<ChunkUpdated>>,
 ) {
     for mut world in &mut worlds {
         for (chunk_id, mut chunk, modification) in &mut chunks {
@@ -303,10 +312,11 @@ fn update_chunk(
                 }
             }
 
-            world.update_neighbors(&mut commands, chunk.pos);
-
             commands.entity(chunk_id).remove::<ChunkModification>();
+
             commands.entity(chunk_id).insert(ChunkUpdated);
+
+            world.update_neighbors(&mut commands, chunk.pos);
         }
     }
 }
