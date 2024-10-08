@@ -1,7 +1,5 @@
 use bevy::{
-    math::{bounding::Aabb3d, Vec3A},
     prelude::*,
-    render::primitives::Aabb,
     utils::HashMap,
 };
 use blocks::Block;
@@ -294,7 +292,7 @@ fn update_chunk(
     mut worlds: Query<&mut VoxelWorld>,
     mut chunks: Query<(Entity, &mut Chunk, &ChunkModification), Without<ChunkUpdated>>,
 ) {
-    for mut world in &mut worlds {
+    for world in &mut worlds {
         for (chunk_id, mut chunk, modification) in &mut chunks {
             if modification.blocks.is_empty() {
                 continue;

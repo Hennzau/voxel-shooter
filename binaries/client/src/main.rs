@@ -1,4 +1,4 @@
-use bevy::{color::palettes::css::WHITE, prelude::*, render::primitives::Frustum};
+use bevy::{color::palettes::css::WHITE, prelude::*};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_screen_diagnostics::{
     ScreenDiagnosticsPlugin, ScreenEntityDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin,
